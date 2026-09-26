@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Chess Opening Trainer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>%E2%99%9E</text></svg>">
+<style>
+:root{
+  --bg:#0d1220; --panel:#161e30; --panel2:#1c2540; --line:#2b3854;
+  --text:#e9edf6; --dim:#8d9ab5; --accent:#e9b44c; --good:#43d17c; --bad:#f47272;
+  --sqL:#efd9b4; --sqD:#b08155;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;color:var(--text);
+  background:radial-gradient(1100px 700px at 75% -10%,#1b2742 0%,var(--bg) 60%) fixed;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;}
+.hidden{display:none!important}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:9px 14px;cursor:pointer;transition:transform .12s,border-color .12s,filter .12s}
+button:hover{border-color:var(--accent);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.primary{background:linear-gradient(180deg,#f3c763,#dfa233);border-color:transparent;color:#2a1d04;font-weight:700}
+.primary:hover{filter:brightness(1.07)}
+.big{font-size:17px;padding:13px 28px;border-radius:12px}
+.link{background:none;border:none;color:var(--dim);text-decoration:underline;padding:4px;font-size:13px}
+.link:hover{color:var(--bad);transform:none}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;max-width:1080px;margin:0 auto}
+.logo{font-size:18px;font-weight:700;letter-spacing:.3px;display:flex;gap:10px;align-items:center}
+.logo .kn{color:var(--accent);font-size:23px}
+header .actions{display:flex;gap:8px}
+.iconbtn{padding:7px 12px;border-radius:9px}
+
+/* ---------- home ---------- */
+#homeView{max-width:1080px;margin:0 auto;padding:6px 22px 44px}
+.hero{text-align:center;padding:28px 0 26px}
+.hero h1{font-size:30px;margin:0 0 10px}
+.hero p{color:var(--dim);max-width:540px;margin:0 auto 22px;line-height:1.55}
+.hero .sub{display:block;margin-top:12px;color:var(--dim);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:14px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;
+  text-align:left;transition:transform .12s,border-color .12s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.cardTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card h3{margin:0;font-size:15.5px;line-height:1.3;font-weight:600}
+.bar{height:6px;background:#0b0f1a;border-radius:99px;margin:12px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#dfa233,#43d17c);border-radius:99px}
+.cardMeta{color:var(--dim);font-size:12.5px}
+.homeFooter{display:flex;justify-content:space-between;align-items:center;margin-top:26px;color:var(--dim);font-size:13.5px}
+
+.chip{padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.chip.w{background:#e9edf6;color:#10151f}
+.chip.b{background:#0b0f1a;color:#e9edf6;border:1px solid #3a4a6b}
+
+/* ---------- drill ---------- */
+#drillView{max-width:1080px;margin:0 auto;padding:8px 22px 44px}
+.drillLayout{display:flex;gap:30px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.boardWrap{flex:0 0 auto}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:min(92vw,64vh,560px);aspect-ratio:1;
+  border-radius:10px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.55);
+  container-type:inline-size;user-select:none;touch-action:manipulation}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sq.light{background:var(--sqL)} .sq.dark{background:var(--sqD)}
+.piece{font-size:9.4cqw;line-height:1;pointer-events:none;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.28))}
+.piece.w{color:#fdfdfd;-webkit-text-stroke:.4cqw #46433d}
+.piece.b{color:#151417;-webkit-text-stroke:.28cqw rgba(255,255,255,.14)}
+.coord{position:absolute;font-size:2.4cqw;font-weight:700;pointer-events:none}
+.coord.rank{top:2%;left:5%}
+.coord.file{bottom:1.5%;right:6%}
+.sq.light .coord{color:var(--sqD)} .sq.dark .coord{color:var(--sqL)}
+.sq.last::before{content:'';position:absolute;inset:0;background:rgba(255,214,64,.34)}
+.sq.sel::after{content:'';position:absolute;inset:0;background:rgba(233,180,76,.45)}
+.sq.check::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle,rgba(244,63,94,.7) 0%,rgba(244,63,94,.25) 55%,transparent 72%)}
+.dot,.ring{position:absolute;inset:0;pointer-events:none}
+.dot::after{content:'';position:absolute;left:50%;top:50%;width:30%;height:30%;
+  transform:translate(-50%,-50%);border-radius:50%;background:rgba(20,25,20,.32)}
+.ring::after{content:'';position:absolute;inset:6%;border-radius:50%;border:.8cqw solid rgba(20,25,20,.32)}
+.sq.bad{animation:shake .38s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}55%{transform:translateX(4px)}80%{transform:translateX(-2px)}}
+.sq.pulse{animation:pulse .8s ease-in-out 2}
+@keyframes pulse{0%,100%{box-shadow:inset 0 0 0 0 rgba(233,180,76,0)}50%{box-shadow:inset 0 0 0 .9cqw rgba(233,180,76,.85)}}
+
+.panel{flex:0 1 380px;min-width:300px;display:flex;flex-direction:column;gap:14px}
+.drillTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.drillTitle h2{margin:0;font-size:21px}
+.status{color:var(--accent);font-weight:600;font-size:15px;min-height:22px}
+.moveList{display:grid;grid-template-columns:auto 1fr 1fr;gap:3px 12px;align-content:start;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+  min-height:120px;max-height:200px;overflow:auto;
+  font-family:Consolas,ui-monospace,monospace;font-size:14.5px}
+.mvNum{color:var(--dim)}
+.mine{color:var(--accent);font-weight:700}
+.btnRow{display:flex;gap:8px;flex-wrap:wrap}
+.feedback{min-height:44px;color:var(--dim);font-size:14px;line-height:1.5}
+.feedback.bad{color:var(--bad)}
+.feedback.info{color:#9fd3ff}
+.idea{color:var(--dim);font-size:13px;font-style:italic;line-height:1.5;border-top:1px solid var(--line);padding-top:10px}
+
+/* ---------- result overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(7,10,18,.75);backdrop-filter:blur(5px);
+  display:flex;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 34px;
+  max-width:540px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.resultTitle{font-size:26px;font-weight:800;margin-bottom:14px}
+.resultLine{font-family:Consolas,ui-monospace,monospace;font-size:15.5px;line-height:1.7;color:#cfe3ff;
+  background:#0b0f1a;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.resultIdea{color:var(--dim);font-size:14px;font-style:italic;margin-bottom:20px}
+
+@media (max-width:900px){
+  .drillLayout{flex-direction:column;align-items:center}
+  .panel{width:100%;max-width:560px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="kn">♞</span>Chess Opening Trainer</div>
+  <div class="actions">
+    <button id="soundBtn" class="iconbtn" title="Toggle sound">🔊</button>
+    <button id="homeBtn" class="iconbtn hidden" title="Back to menu">☰ Menu</button>
+  </div>
+</header>
+
+<main id="homeView">
+  <section class="hero">
+    <h1>Drill your openings</h1>
+    <p>The bot names an opening and plays the opponent's side — you play your moves
+       from memory. Just the opening, no full game.</p>
+    <button id="trainBtn" class="primary big">▶&nbsp; Start training</button>
+    <span class="sub">Start training picks your weakest opening automatically.</span>
+  </section>
+  <section class="grid" id="openingGrid"></section>
+  <div class="homeFooter">
+    <span id="overallStats"></span>
+    <button id="resetBtn" class="link">reset progress</button>
+  </div>
+</main>
+
+<main id="drillView" class="hidden">
+  <div class="drillLayout">
+    <div class="boardWrap"><div id="board" class="board"></div></div>
+    <aside class="panel">
+      <div class="drillTitle"><h2 id="drillName"></h2><span id="sideChip" class="chip w"></span></div>
+      <div id="status" class="status"></div>
+      <div id="moveList" class="moveList"></div>
+      <div class="btnRow">
+        <button id="hintBtn">💡 Hint</button>
+        <button id="showBtn">📜 Show line</button>
+        <button id="giveupBtn">🏳️ Give up</button>
+        <button id="restartBtn">↺ Restart</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="drillIdea" class="idea"></div>
+    </aside>
+  </div>
+</main>
+
+<div id="overlay" class="overlay hidden">
+  <div class="modal">
+    <div id="resultTitle" class="resultTitle"></div>
+    <div id="resultLine" class="resultLine"></div>
+    <div id="resultIdea" class="resultIdea"></div>
+    <div class="btnRow">
+      <button id="nextBtn" class="primary">Next drill ▶</button>
+      <button id="menuBtn">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">/*__CHESSJS__*/
+/* The engine build is an ES module (it ends in export{...}); bridge it to a global. */
+window.Chess = Chess;
+</script>
+<script type="module">
+'use strict';
+const Chess = window.Chess;
+const BOOK = __BOOK_JSON__;
+
+/* ---------- safe storage (localStorage may be blocked on file://) ---------- */
+const store = (() => {
+  try {
+    const k = '__cot_test__';
+    localStorage.setItem(k, '1');
+    localStorage.removeItem(k);
+    return localStorage;
+  } catch (e) {
+    const mem = {};
+    return {
+      getItem: k => (k in mem ? mem[k] : null),
+      setItem: (k, v) => { mem[k] = String(v); },
+      removeItem: k => { delete mem[k]; }
+    };
+  }
+})();
+
+const PKEY = 'cot.progress.v1';
+const SKEY = 'cot.sound.v1';
+let progress = {};
+try { progress = JSON.parse(store.getItem(PKEY) || '{}') || {}; } catch (e) { progress = {}; }
+function saveProgress() { store.setItem(PKEY, JSON.stringify(progress)); }
+
+/* ---------- tiny synth sounds (no assets) ---------- */
+let soundOn = store.getItem(SKEY) !== '0';
+let actx = null;
+function ac() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function tone(freq, dur, type, gain, delay) {
+  if (!soundOn) return;
+  const ctx = ac(); if (!ctx) return;
+  const t0 = ctx.currentTime + (delay || 0);
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(gain || 0.1, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t0); o.stop(t0 + dur + 0.02);
+}
+const sfx = {
+  move()   { tone(560, .06, 'sine', .07); },
+  bot()    { tone(430, .06, 'sine', .05); },
+  capture(){ tone(300, .09, 'triangle', .1); },
+  wrong()  { tone(150, .18, 'sawtooth', .09); },
+  win()    { tone(523, .1, 'sine', .1); tone(659, .1, 'sine', .1, .1); tone(784, .18, 'sine', .12, .2); }
+};
+
+/* ---------- state ---------- */
+const $ = id => document.getElementById(id);
+const norm = s => s.replace(/[+#!?]/g, '');
+const strip = s => s.replace(/[+#]/g, '');
+const FILES = 'abcdefgh';
+const GLYPH = { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
+
+let drill = null;      // current BOOK entry
+let game = null;       // chess.js instance
+let idx = 0;           // index of next halfmove in drill.moves
+let flawed = false;    // hint / show / wrong move used -> not "perfect"
+let busy = false;      // bot is "thinking"
+let over = false;      // drill finished
+let sel = null;        // selected square
+let lastMove = null;
+let lastDrillName = null;
+let botTimer = null;
+
+function userTurn() { return game.turn() === drill.side; }
+
+/* ---------- views ---------- */
+function showView(v) {
+  $('homeView').classList.toggle('hidden', v !== 'home');
+  $('drillView').classList.toggle('hidden', v !== 'drill');
+  $('homeBtn').classList.toggle('hidden', v !== 'drill');
+}
+function hideOverlay() { $('overlay').classList.add('hidden'); }
+
+/* ---------- home ---------- */
+function renderHome() {
+  const grid = $('openingGrid');
+  grid.innerHTML = '';
+  for (const d of BOOK) {
+    const p = progress[d.name];
+    const pct = p && p.drills ? Math.round(100 * p.perfect / p.drills) : null;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      `<div class="cardTop"><h3>${d.name}</h3>` +
+      `<span class="chip ${d.side}">${d.side === 'w' ? 'White' : 'Black'}</span></div>` +
+      `<div class="bar"><i style="width:${pct || 0}%"></i></div>` +
+      `<div class="cardMeta">${p && p.drills ? p.drills + (p.drills === 1 ? ' drill · ' : ' drills · ') + pct + '% perfect' : 'not drilled yet'}</div>`;
+    card.addEventListener('click', () => startDrill(d));
+    grid.appendChild(card);
+  }
+  const tot = Object.values(progress).reduce((a, p) => { a.d += p.drills; a.p += p.perfect; return a; }, { d: 0, p: 0 });
+  $('overallStats').textContent = tot.d
+    ? `${tot.d} drill${tot.d === 1 ? '' : 's'} completed · ${Math.round(100 * tot.p / tot.d)}% perfect overall`
+    : 'No drills yet — hit Start training!';
+}
+
+function pickDrill(exclude) {
+  const pool = BOOK.filter(d => d.name !== exclude);
+  const use = pool.length ? pool : BOOK;
+  const weights = use.map(d => {
+    const p = progress[d.name];
+    if (!p || !p.drills) return 3;
+    return 0.3 + (1 - p.perfect / p.drills);
+  });
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < use.length; i++) { r -= weights[i]; if (r <= 0) return use[i]; }
+  return use[use.length - 1];
+}
+
+/* ---------- drill ---------- */
+function startDrill(d) {
+  clearTimeout(botTimer);
+  drill = d; game = new Chess();
+  idx = 0; flawed = false; over = false; busy = false;
+  sel = null; lastMove = null;
+  lastDrillName = d.name;
+  $('drillName').textContent = d.name;
+  const chip = $('sideChip');
+  chip.textContent = d.side === 'w' ? 'You play White' : 'You play Black';
+  chip.className = 'chip ' + d.side;
+  $('drillIdea').textContent = 'Idea: ' + d.idea;
+  $('feedback').textContent = '';
+  $('feedback').className = 'feedback';
+  showView('drill');
+  hideOverlay();
+  renderAll();
+  if (!userTurn()) scheduleBot(); else setStatus();
+}
+
+function setStatus() {
+  const el = $('status');
+  if (over) return;
+  if (busy) { el.textContent = 'Bot is thinking…'; return; }
+  const n = Math.floor(idx / 2) + 1;
+  el.textContent = `Move ${n}${game.turn() === 'w' ? '.' : '...'} — your move`;
+}
+
+function numbered(start) {
+  const parts = [];
+  for (let i = start; i < drill.moves.length; i++) {
+    parts.push(i % 2 === 0 ? (i / 2 + 1) + '.' + drill.moves[i] : drill.moves[i]);
+  }
+  return parts.join(' ');
+}
+
+function scheduleBot() {
+  busy = true;
+  setStatus();
+  botTimer = setTimeout(() => {
+    let mv = null;
+    try { mv = game.move(drill.moves[idx]); } catch (e) { console.error('bad book move', drill.moves[idx]); }
+    if (!mv) { finish('done'); return; }
+    idx++;
+    lastMove = { from: mv.from, to: mv.to };
+    sfx[mv.captured ? 'capture' : 'bot']();
+    renderAll();
+    if (idx >= drill.moves.length) finish('done');
+    else { busy = false; setStatus(); }
+  }, 550);
+}
+
+function attemptMove(from, to) {
+  let mv = null;
+  try { mv = game.move({ from, to, promotion: 'q' }); } catch (e) { mv = null; }
+  if (!mv) return null;
+  if (norm(mv.san) !== norm(drill.moves[idx])) {
+    game.undo();
+    flawed = true;
+    feedback(`✗ ${strip(mv.san)} is not the theory move here — try again.`, 'bad');
+    sfx.wrong();
+    return { wrong: true, from, to };
+  }
+  idx++;
+  lastMove = { from, to };
+  const f = $('feedback'); f.textContent = ''; f.className = 'feedback';
+  sfx[mv.captured ? 'capture' : 'move']();
+  return { wrong: false };
+}
+
+function finish(kind) {  // 'done' | 'gaveup'
+  clearTimeout(botTimer);
+  over = true; busy = false; sel = null;
+  const perfect = kind === 'done' && !flawed;
+  const p = progress[drill.name] || (progress[drill.name] = { drills: 0, perfect: 0 });
+  p.drills++;
+  if (perfect) p.perfect++;
+  saveProgress();
+  $('resultTitle').textContent = kind === 'gaveup' ? '🏳️ Gave up' : (perfect ? '🏆 Perfect!' : '✓ Line complete');
+  $('resultLine').textContent = numbered(0);
+  $('resultIdea').textContent = drill.idea;
+  $('overlay').classList.remove('hidden');
+  renderAll();
+  if (perfect) sfx.win();
+}
+
+function feedback(msg, cls) {
+  const f = $('feedback');
+  f.textContent = msg;
+  f.className = 'feedback ' + (cls || '');
+}
+
+/* ---------- in-drill commands ---------- */
+function hint() {
+  if (over || busy || !userTurn()) return;
+  flawed = true;
+  const want = norm(drill.moves[idx]);
+  const m = game.moves({ verbose: true }).find(x => norm(x.san) === want);
+  feedback(`💡 Hint: play ${drill.moves[idx]}`, 'info');
+  if (m) pulseSquare(m.from);
+}
+function showLine() {
+  if (over || busy) return;
+  flawed = true;
+  feedback('📜 Remaining: ' + numbered(idx), 'info');
+}
+function giveUp() {
+  if (over) return;
+  finish('gaveup');
+}
+
+/* ---------- board rendering ---------- */
+function squareName(f, r) { return FILES[f] + (r + 1); }
+
+function findKing(color) {
+  const rows = game.board();
+  for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) {
+    const p = rows[r][f];
+    if (p && p.type === 'k' && p.color === color) return FILES[f] + (8 - r);
+  }
+  return null;
+}
+
+function renderBoard() {
+  const flip = drill.side === 'b';
+  const rankOrder = flip ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
+  const fileOrder = flip ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+  const canPick = !busy && !over && userTurn();
+  const targets = (sel && canPick)
+    ? new Set(game.moves({ square: sel, verbose: true }).map(m => m.to)) : null;
+  const checkSq = game.in_check() ? findKing(game.turn()) : null;
+
+  let html = '';
+  for (const r of rankOrder) {
+    for (const f of fileOrder) {
+      const sq = squareName(f, r);
+      let cls = 'sq ' + ((f + r) % 2 === 1 ? 'light' : 'dark');
+      if (sel === sq) cls += ' sel';
+      if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cls += ' last';
+      if (checkSq === sq) cls += ' check';
+      let inner = '';
+      const p = game.get(sq);
+      if (p) inner += `<span class="piece ${p.color}">${GLYPH[p.type]}</span>`;
+      if (targets && targets.has(sq)) inner += game.get(sq) ? '<span class="ring"></span>' : '<span class="dot"></span>';
+      if (f === fileOrder[0]) inner += `<span class="coord rank">${r + 1}</span>`;
+      if (r === rankOrder[7]) inner += `<span class="coord file">${FILES[f]}</span>`;
+      html += `<div class="${cls}" data-square="${sq}">${inner}</div>`;
+    }
+  }
+  $('board').innerHTML = html;
+}
+
+function renderMoveList() {
+  const el = $('moveList');
+  el.innerHTML = '';
+  for (let i = 0; i < idx; i += 2) {
+    const num = document.createElement('span');
+    num.className = 'mvNum';
+    num.textContent = (i / 2 + 1) + '.';
+    const w = document.createElement('span');
+    w.textContent = drill.moves[i];
+    if (drill.side === 'w') w.classList.add('mine');
+    const b = document.createElement('span');
+    if (i + 1 < idx && drill.moves[i + 1]) {
+      b.textContent = drill.moves[i + 1];
+      if (drill.side === 'b') b.classList.add('mine');
+    } else b.innerHTML = '&nbsp;';
+    el.append(num, w, b);
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderAll() { renderBoard(); renderMoveList(); setStatus(); }
+
+function flashSquares(list) {
+  for (const sq of list) {
+    const el = document.querySelector(`[data-square="${sq}"]`);
+    if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 450); }
+  }
+}
+function pulseSquare(sq) {
+  const el = document.querySelector(`[data-square="${sq}"]`);
+  if (el) { el.classList.add('pulse'); setTimeout(() => el.classList.remove('pulse'), 1700); }
+}
+
+/* ---------- interaction ---------- */
+function onSquare(sq) {
+  if (over || busy || !userTurn()) return;
+  const piece = game.get(sq);
+  if (sel) {
+    if (sq === sel) { sel = null; renderAll(); return; }
+    const targets = game.moves({ square: sel, verbose: true }).map(m => m.to);
+    if (targets.includes(sq)) {
+      const res = attemptMove(sel, sq);
+      sel = null;
+      renderAll();
+      if (res) {
+        if (res.wrong) flashSquares([res.from, res.to]);
+        else if (idx >= drill.moves.length) finish('done');
+        else scheduleBot();
+      }
+      return;
+    }
+  }
+  sel = (piece && piece.color === drill.side) ? sq : null;
+  renderAll();
+}
+
+function goHome() {
+  clearTimeout(botTimer);
+  over = true;
+  hideOverlay();
+  renderHome();
+  showView('home');
+}
+
+$('board').addEventListener('click', e => {
+  const el = e.target.closest('[data-square]');
+  if (el) onSquare(el.dataset.square);
+});
+$('trainBtn').addEventListener('click', () => startDrill(pickDrill(lastDrillName)));
+$('hintBtn').addEventListener('click', hint);
+$('showBtn').addEventListener('click', showLine);
+$('giveupBtn').addEventListener('click', giveUp);
+$('restartBtn').addEventListener('click', () => startDrill(drill));
+$('homeBtn').addEventListener('click', goHome);
+$('nextBtn').addEventListener('click', () => { hideOverlay(); startDrill(pickDrill(drill.name)); });
+$('menuBtn').addEventListener('click', goHome);
+$('resetBtn').addEventListener('click', () => {
+  if (confirm('Reset all saved progress?')) { progress = {}; saveProgress(); renderHome(); }
+});
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn;
+  store.setItem(SKEY, soundOn ? '1' : '0');
+  $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+});
+
+function renderSound() { $('soundBtn').textContent = soundOn ? '🔊' : '🔇'; }
+renderSound();
+renderHome();
+showView('home');
+</script>
+</body>
+</html>

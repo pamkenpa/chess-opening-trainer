@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Chess Opening Trainer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>%E2%99%9E</text></svg>">
+<style>
+:root{
+  --bg:#0d1220; --panel:#161e30; --panel2:#1c2540; --line:#2b3854;
+  --text:#e9edf6; --dim:#8d9ab5; --accent:#e9b44c; --good:#43d17c; --bad:#f47272;
+  --sqL:#efd9b4; --sqD:#b08155;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;color:var(--text);
+  background:radial-gradient(1100px 700px at 75% -10%,#1b2742 0%,var(--bg) 60%) fixed;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;}
+.hidden{display:none!important}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:9px 14px;cursor:pointer;transition:transform .12s,border-color .12s,filter .12s}
+button:hover{border-color:var(--accent);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.primary{background:linear-gradient(180deg,#f3c763,#dfa233);border-color:transparent;color:#2a1d04;font-weight:700}
+.primary:hover{filter:brightness(1.07)}
+.big{font-size:17px;padding:13px 28px;border-radius:12px}
+.link{background:none;border:none;color:var(--dim);text-decoration:underline;padding:4px;font-size:13px}
+.link:hover{color:var(--bad);transform:none}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;max-width:1080px;margin:0 auto}
+.logo{font-size:18px;font-weight:700;letter-spacing:.3px;display:flex;gap:10px;align-items:center}
+.logo .kn{color:var(--accent);font-size:23px}
+header .actions{display:flex;gap:8px}
+.iconbtn{padding:7px 12px;border-radius:9px}
+
+/* ---------- home ---------- */
+#homeView{max-width:1080px;margin:0 auto;padding:6px 22px 44px}
+.hero{text-align:center;padding:28px 0 26px}
+.hero h1{font-size:30px;margin:0 0 10px}
+.hero p{color:var(--dim);max-width:540px;margin:0 auto 22px;line-height:1.55}
+.hero .sub{display:block;margin-top:12px;color:var(--dim);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:14px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;
+  text-align:left;transition:transform .12s,border-color .12s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.cardTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card h3{margin:0;font-size:15.5px;line-height:1.3;font-weight:600}
+.bar{height:6px;background:#0b0f1a;border-radius:99px;margin:12px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#dfa233,#43d17c);border-radius:99px}
+.cardMeta{color:var(--dim);font-size:12.5px}
+.homeFooter{display:flex;justify-content:space-between;align-items:center;margin-top:26px;color:var(--dim);font-size:13.5px}
+
+.chip{padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.chip.w{background:#e9edf6;color:#10151f}
+.chip.b{background:#0b0f1a;color:#e9edf6;border:1px solid #3a4a6b}
+
+/* ---------- drill ---------- */
+#drillView{max-width:1080px;margin:0 auto;padding:8px 22px 44px}
+.drillLayout{display:flex;gap:30px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.boardWrap{flex:0 0 auto}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:min(92vw,64vh,560px);aspect-ratio:1;
+  border-radius:10px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.55);
+  container-type:inline-size;user-select:none;touch-action:manipulation}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sq.light{background:var(--sqL)} .sq.dark{background:var(--sqD)}
+.piece{font-size:9.4cqw;line-height:1;pointer-events:none;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.28))}
+.piece.w{color:#fdfdfd;-webkit-text-stroke:.4cqw #46433d}
+.piece.b{color:#151417;-webkit-text-stroke:.28cqw rgba(255,255,255,.14)}
+.coord{position:absolute;font-size:2.4cqw;font-weight:700;pointer-events:none}
+.coord.rank{top:2%;left:5%}
+.coord.file{bottom:1.5%;right:6%}
+.sq.light .coord{color:var(--sqD)} .sq.dark .coord{color:var(--sqL)}
+.sq.last::before{content:'';position:absolute;inset:0;background:rgba(255,214,64,.34)}
+.sq.sel::after{content:'';position:absolute;inset:0;background:rgba(233,180,76,.45)}
+.sq.check::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle,rgba(244,63,94,.7) 0%,rgba(244,63,94,.25) 55%,transparent 72%)}
+.dot,.ring{position:absolute;inset:0;pointer-events:none}
+.dot::after{content:'';position:absolute;left:50%;top:50%;width:30%;height:30%;
+  transform:translate(-50%,-50%);border-radius:50%;background:rgba(20,25,20,.32)}
+.ring::after{content:'';position:absolute;inset:6%;border-radius:50%;border:.8cqw solid rgba(20,25,20,.32)}
+.sq.bad{animation:shake .38s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}55%{transform:translateX(4px)}80%{transform:translateX(-2px)}}
+.sq.pulse{animation:pulse .8s ease-in-out 2}
+@keyframes pulse{0%,100%{box-shadow:inset 0 0 0 0 rgba(233,180,76,0)}50%{box-shadow:inset 0 0 0 .9cqw rgba(233,180,76,.85)}}
+
+.panel{flex:0 1 380px;min-width:300px;display:flex;flex-direction:column;gap:14px}
+.drillTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.drillTitle h2{margin:0;font-size:21px}
+.status{color:var(--accent);font-weight:600;font-size:15px;min-height:22px}
+.moveList{display:grid;grid-template-columns:auto 1fr 1fr;gap:3px 12px;align-content:start;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+  min-height:120px;max-height:200px;overflow:auto;
+  font-family:Consolas,ui-monospace,monospace;font-size:14.5px}
+.mvNum{color:var(--dim)}
+.mine{color:var(--accent);font-weight:700}
+.btnRow{display:flex;gap:8px;flex-wrap:wrap}
+.feedback{min-height:44px;color:var(--dim);font-size:14px;line-height:1.5}
+.feedback.bad{color:var(--bad)}
+.feedback.info{color:#9fd3ff}
+.idea{color:var(--dim);font-size:13px;font-style:italic;line-height:1.5;border-top:1px solid var(--line);padding-top:10px}
+
+/* ---------- result overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(7,10,18,.75);backdrop-filter:blur(5px);
+  display:flex;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 34px;
+  max-width:540px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.resultTitle{font-size:26px;font-weight:800;margin-bottom:14px}
+.resultLine{font-family:Consolas,ui-monospace,monospace;font-size:15.5px;line-height:1.7;color:#cfe3ff;
+  background:#0b0f1a;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.resultIdea{color:var(--dim);font-size:14px;font-style:italic;margin-bottom:20px}
+
+@media (max-width:900px){
+  .drillLayout{flex-direction:column;align-items:center}
+  .panel{width:100%;max-width:560px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="kn">♞</span>Chess Opening Trainer</div>
+  <div class="actions">
+    <button id="soundBtn" class="iconbtn" title="Toggle sound">🔊</button>
+    <button id="homeBtn" class="iconbtn hidden" title="Back to menu">☰ Menu</button>
+  </div>
+</header>
+
+<main id="homeView">
+  <section class="hero">
+    <h1>Drill your openings</h1>
+    <p>The bot names an opening and plays the opponent's side — you play your moves
+       from memory. Just the opening, no full game.</p>
+    <button id="trainBtn" class="primary big">▶&nbsp; Start training</button>
+    <span class="sub">Start training picks your weakest opening automatically.</span>
+  </section>
+  <section class="grid" id="openingGrid"></section>
+  <div class="homeFooter">
+    <span id="overallStats"></span>
+    <button id="resetBtn" class="link">reset progress</button>
+  </div>
+</main>
+
+<main id="drillView" class="hidden">
+  <div class="drillLayout">
+    <div class="boardWrap"><div id="board" class="board"></div></div>
+    <aside class="panel">
+      <div class="drillTitle"><h2 id="drillName"></h2><span id="sideChip" class="chip w"></span></div>
+      <div id="status" class="status"></div>
+      <div id="moveList" class="moveList"></div>
+      <div class="btnRow">
+        <button id="hintBtn">💡 Hint</button>
+        <button id="showBtn">📜 Show line</button>
+        <button id="giveupBtn">🏳️ Give up</button>
+        <button id="restartBtn">↺ Restart</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="drillIdea" class="idea"></div>
+    </aside>
+  </div>
+</main>
+
+<div id="overlay" class="overlay hidden">
+  <div class="modal">
+    <div id="resultTitle" class="resultTitle"></div>
+    <div id="resultLine" class="resultLine"></div>
+    <div id="resultIdea" class="resultIdea"></div>
+    <div class="btnRow">
+      <button id="nextBtn" class="primary">Next drill ▶</button>
+      <button id="menuBtn">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">const SYMBOLS="pnbrqkPNBRQK",DEFAULT_POSITION="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",TERMINATION_MARKERS=["1-0","0-1","1/2-1/2","*"],PAWN_OFFSETS={b:[16,32,17,15],w:[-16,-32,-17,-15]},PIECE_OFFSETS={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},ATTACKS=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],RAYS=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],SHIFTS={p:0,n:1,b:2,r:3,q:4,k:5},BITS={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64},RANK_1=7,RANK_2=6,RANK_3=5,RANK_4=4,RANK_5=3,RANK_6=2,RANK_7=1,RANK_8=0,SQUARE_MAP={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},ROOKS={w:[{square:SQUARE_MAP.a1,flag:BITS.QSIDE_CASTLE},{square:SQUARE_MAP.h1,flag:BITS.KSIDE_CASTLE}],b:[{square:SQUARE_MAP.a8,flag:BITS.QSIDE_CASTLE},{square:SQUARE_MAP.h8,flag:BITS.KSIDE_CASTLE}]},PARSER_STRICT=0,PARSER_SLOPPY=1;function get_disambiguator(e,r){for(var n=e.from,t=e.to,o=e.piece,i=0,a=0,l=0,f=0,u=r.length;f<u;f++){var c=r[f].from,s=r[f].to;o===r[f].piece&&n!==c&&t===s&&(i++,rank(n)===rank(c)&&a++,file(n)===file(c)&&l++)}return 0<i?0<a&&0<l?algebraic(n):0<l?algebraic(n).charAt(1):algebraic(n).charAt(0):""}function infer_piece_type(e){var r=e.charAt(0);return"a"<=r&&r<="h"?e.match(/[a-h]\d.*[a-h]\d/)?void 0:PAWN:"o"===(r=r.toLowerCase())?KING:r}function stripped_san(e){return e.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}function rank(e){return e>>4}function file(e){return 15&e}function algebraic(e){var r=file(e),e=rank(e);return"abcdefgh".substring(r,r+1)+"87654321".substring(e,e+1)}function swap_color(e){return e===WHITE?BLACK:WHITE}function is_digit(e){return-1!=="0123456789".indexOf(e)}function clone(e){var r,n=e instanceof Array?[]:{};for(r in e)n[r]="object"==typeof r?clone(e[r]):e[r];return n}function trim(e){return e.replace(/^\s+|\s+$/g,"")}const BLACK="b",WHITE="w",EMPTY=-1,PAWN="p",KNIGHT="n",BISHOP="b",ROOK="r",QUEEN="q",KING="k",SQUARES=function(){for(var e=[],r=SQUARE_MAP.a8;r<=SQUARE_MAP.h1;r++)136&r?r+=7:e.push(algebraic(r));return e}(),FLAGS={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q"},Chess=function(e){var I=new Array(128),P={w:EMPTY,b:EMPTY},v=WHITE,R={w:0,b:0},d=EMPTY,f=0,A=1,E=[],T={},h={};function u(e){void 0===e&&(e=!1),I=new Array(128),P={w:EMPTY,b:EMPTY},v=WHITE,R={w:0,b:0},d=EMPTY,f=0,A=1,E=[],e||(T={}),h={},s(O())}function r(){function e(e){e in h&&(n[e]=h[e])}for(var r=[],n={};0<E.length;)r.push(y());for(e(O());0<r.length;)L(r.pop()),e(O());h=n}function b(){m(DEFAULT_POSITION)}function m(e,r){void 0===r&&(r=!1);var n=e.split(/\s+/),t=n[0],o=0;if(!c(e).valid)return!1;u(r);for(var i=0;i<t.length;i++){var a,l=t.charAt(i);"/"===l?o+=8:is_digit(l)?o+=parseInt(l,10):(a=l<"a"?WHITE:BLACK,p({type:l.toLowerCase(),color:a},algebraic(o)),o++)}return v=n[1],-1<n[2].indexOf("K")&&(R.w|=BITS.KSIDE_CASTLE),-1<n[2].indexOf("Q")&&(R.w|=BITS.QSIDE_CASTLE),-1<n[2].indexOf("k")&&(R.b|=BITS.KSIDE_CASTLE),-1<n[2].indexOf("q")&&(R.b|=BITS.QSIDE_CASTLE),d="-"===n[3]?EMPTY:SQUARE_MAP[n[3]],f=parseInt(n[4],10),A=parseInt(n[5],10),s(O()),!0}function c(e){var r="No errors.",n="FEN string must contain six space-delimited fields.",t="6th field (move number) must be a positive integer.",o="5th field (half move counter) must be a non-negative integer.",i="4th field (en-passant square) is invalid.",a="3rd field (castling availability) is invalid.",l="2nd field (side to move) is invalid.",f="1st field (piece positions) does not contain 8 '/'-delimited rows.",u="1st field (piece positions) is invalid [consecutive numbers].",c="1st field (piece positions) is invalid [invalid piece].",s="1st field (piece positions) is invalid [row too large].",p="Illegal en-passant square",e=e.split(/\s+/);if(6!==e.length)return{valid:!1,error_number:1,error:n};if(isNaN(parseInt(e[5]))||parseInt(e[5],10)<=0)return{valid:!1,error_number:2,error:t};if(isNaN(parseInt(e[4]))||parseInt(e[4],10)<0)return{valid:!1,error_number:3,error:o};if(!/^(-|[abcdefgh][36])$/.test(e[3]))return{valid:!1,error_number:4,error:i};if(!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(e[2]))return{valid:!1,error_number:5,error:a};if(!/^(w|b)$/.test(e[1]))return{valid:!1,error_number:6,error:l};var S=e[0].split("/");if(8!==S.length)return{valid:!1,error_number:7,error:f};for(var A=0;A<S.length;A++){for(var E=0,g=!1,_=0;_<S[A].length;_++)if(isNaN(S[A][_])){if(!/^[prnbqkPRNBQK]$/.test(S[A][_]))return{valid:!1,error_number:9,error:c};E+=1,g=!1}else{if(g)return{valid:!1,error_number:8,error:u};E+=parseInt(S[A][_],10),g=!0}if(8!==E)return{valid:!1,error_number:10,error:s}}return"3"==e[3][1]&&"w"==e[1]||"6"==e[3][1]&&"b"==e[1]?{valid:!1,error_number:11,error:p}:{valid:!0,error_number:0,error:r}}function O(){for(var e,r,n=0,t="",o=SQUARE_MAP.a8;o<=SQUARE_MAP.h1;o++)null==I[o]?n++:(0<n&&(t+=n,n=0),e=I[o].color,r=I[o].type,t+=e===WHITE?r.toUpperCase():r.toLowerCase()),o+1&136&&(0<n&&(t+=n),o!==SQUARE_MAP.h1&&(t+="/"),n=0,o+=8);var i="",a=(R[WHITE]&BITS.KSIDE_CASTLE&&(i+="K"),R[WHITE]&BITS.QSIDE_CASTLE&&(i+="Q"),R[BLACK]&BITS.KSIDE_CASTLE&&(i+="k"),R[BLACK]&BITS.QSIDE_CASTLE&&(i+="q"),i=i||"-",d===EMPTY?"-":algebraic(d));return[t,v,i,a,f,A].join(" ")}function N(e){for(var r=0;r<e.length;r+=2)"string"==typeof e[r]&&"string"==typeof e[r+1]&&(T[e[r]]=e[r+1]);return T}function s(e){0<E.length||(e!==DEFAULT_POSITION?(T.SetUp="1",T.FEN=e):(delete T.SetUp,delete T.FEN))}function n(e){e=I[SQUARE_MAP[e]];return e?{type:e.type,color:e.color}:null}function p(e,r){if(!("type"in e&&"color"in e))return!1;if(-1===SYMBOLS.indexOf(e.type.toLowerCase()))return!1;if(!(r in SQUARE_MAP))return!1;r=SQUARE_MAP[r];return(e.type!=KING||P[e.color]==EMPTY||P[e.color]==r)&&(I[r]={type:e.type,color:e.color},e.type===KING&&(P[e.color]=r),s(O()),!0)}function C(e,r,n,t,o){r={color:v,from:r,to:n,flags:t,piece:e[r].type};return o&&(r.flags|=BITS.PROMOTION,r.promotion=o),e[n]?r.captured=e[n].type:t&BITS.EP_CAPTURE&&(r.captured=PAWN),r}function g(e){function r(e,r,n,t,o){if(e[n].type!==PAWN||rank(t)!==RANK_8&&rank(t)!==RANK_1)r.push(C(e,n,t,o));else for(var i=[QUEEN,ROOK,BISHOP,KNIGHT],a=0,l=i.length;a<l;a++)r.push(C(e,n,t,o,i[a]))}var n=[],t=v,o=swap_color(t),i={b:RANK_7,w:RANK_2},a=SQUARE_MAP.a8,l=SQUARE_MAP.h1,f=!1,u=!(void 0!==e&&"legal"in e)||e.legal,c=!(void 0!==e&&"piece"in e&&"string"==typeof e.piece)||e.piece.toLowerCase();if(void 0!==e&&"square"in e){if(!(e.square in SQUARE_MAP))return[];a=l=SQUARE_MAP[e.square],f=!0}for(var s,p,S=a;S<=l;S++)if(136&S)S+=7;else{var A=I[S];if(null!=A&&A.color===t)if(A.type!==PAWN||!0!==c&&c!==PAWN){if(!0===c||c===A.type)for(var E=0,g=PIECE_OFFSETS[A.type].length;E<g;E++)for(var _=PIECE_OFFSETS[A.type][E],T=S;;){if(136&(T+=_))break;if(null!=I[T]){if(I[T].color===t)break;r(I,n,S,T,BITS.CAPTURE);break}if(r(I,n,S,T,BITS.NORMAL),"n"===A.type||"k"===A.type)break}}else{var T=S+PAWN_OFFSETS[t][0];for(null==I[T]&&(r(I,n,S,T,BITS.NORMAL),T=S+PAWN_OFFSETS[t][1],i[t]===rank(S)&&null==I[T]&&r(I,n,S,T,BITS.BIG_PAWN)),E=2;E<4;E++)136&(T=S+PAWN_OFFSETS[t][E])||(null!=I[T]&&I[T].color===o?r(I,n,S,T,BITS.CAPTURE):T===d&&r(I,n,S,d,BITS.EP_CAPTURE))}}if(!0!==c&&c!==KING||f&&l!==P[t]||(R[t]&BITS.KSIDE_CASTLE&&(p=(s=P[t])+2,null!=I[s+1]||null!=I[p]||B(o,P[t])||B(o,s+1)||B(o,p)||r(I,n,P[t],p,BITS.KSIDE_CASTLE)),R[t]&BITS.QSIDE_CASTLE&&(p=(s=P[t])-2,null!=I[s-1]||null!=I[s-2]||null!=I[s-3]||B(o,P[t])||B(o,s-1)||B(o,p)||r(I,n,P[t],p,BITS.QSIDE_CASTLE))),!u)return n;for(var h=[],S=0,g=n.length;S<g;S++)L(n[S]),K(t)||h.push(n[S]),y();return h}function _(e,r){var n="";return e.flags&BITS.KSIDE_CASTLE?n="O-O":e.flags&BITS.QSIDE_CASTLE?n="O-O-O":(e.piece!==PAWN&&(r=get_disambiguator(e,r),n+=e.piece.toUpperCase()+r),e.flags&(BITS.CAPTURE|BITS.EP_CAPTURE)&&(e.piece===PAWN&&(n+=algebraic(e.from)[0]),n+="x"),n+=algebraic(e.to),e.flags&BITS.PROMOTION&&(n+="="+e.promotion.toUpperCase())),L(e),t()&&(o()?n+="#":n+="+"),y(),n}function B(e,r){for(var n=SQUARE_MAP.a8;n<=SQUARE_MAP.h1;n++)if(136&n)n+=7;else if(null!=I[n]&&I[n].color===e){var t=I[n],o=n-r,i=119+o;if(ATTACKS[i]&1<<SHIFTS[t.type])if(t.type===PAWN){if(0<o){if(t.color===WHITE)return!0}else if(t.color===BLACK)return!0}else{if("n"===t.type||"k"===t.type)return!0;for(var a=RAYS[i],l=n+a,f=!1;l!==r;){if(null!=I[l]){f=!0;break}l+=a}if(!f)return!0}}return!1}function K(e){return B(swap_color(e),P[e])}function t(){return K(v)}function o(){return t()&&0===g().length}function i(){return!t()&&0===g().length}function a(){for(var e={},r=[],n=0,t=0,o=SQUARE_MAP.a8;o<=SQUARE_MAP.h1;o++){var i,t=(t+1)%2;136&o?o+=7:(i=I[o])&&(e[i.type]=i.type in e?e[i.type]+1:1,i.type===BISHOP&&r.push(t),n++)}if(2===n)return!0;if(3===n&&(1===e[BISHOP]||1===e[KNIGHT]))return!0;if(n===e[BISHOP]+2){for(var a=0,l=r.length,o=0;o<l;o++)a+=r[o];if(0===a||a===l)return!0}return!1}function l(){for(var e=[],r={},n=!1;;){var t=y();if(!t)break;e.push(t)}for(;;){var o=O().split(" ").slice(0,4).join(" ");if(r[o]=o in r?r[o]+1:1,3<=r[o]&&(n=!0),!e.length)break;L(e.pop())}return n}function L(e){var r,n,t=v,o=swap_color(t);if(E.push({move:e,kings:{b:P.b,w:P.w},turn:v,castling:{b:R.b,w:R.w},ep_square:d,half_moves:f,move_number:A}),I[e.to]=I[e.from],I[e.from]=null,e.flags&BITS.EP_CAPTURE&&(v===BLACK?I[e.to-16]=null:I[e.to+16]=null),e.flags&BITS.PROMOTION&&(I[e.to]={type:e.promotion,color:t}),I[e.to].type===KING&&(P[I[e.to].color]=e.to,e.flags&BITS.KSIDE_CASTLE?(r=e.to-1,n=e.to+1,I[r]=I[n],I[n]=null):e.flags&BITS.QSIDE_CASTLE&&(r=e.to+1,n=e.to-2,I[r]=I[n],I[n]=null),R[t]=""),R[t])for(var i=0,a=ROOKS[t].length;i<a;i++)if(e.from===ROOKS[t][i].square&&R[t]&ROOKS[t][i].flag){R[t]^=ROOKS[t][i].flag;break}if(R[o])for(i=0,a=ROOKS[o].length;i<a;i++)if(e.to===ROOKS[o][i].square&&R[o]&ROOKS[o][i].flag){R[o]^=ROOKS[o][i].flag;break}d=e.flags&BITS.BIG_PAWN?"b"===v?e.to-16:e.to+16:EMPTY,e.piece===PAWN||e.flags&(BITS.CAPTURE|BITS.EP_CAPTURE)?f=0:f++,v===BLACK&&A++,v=swap_color(v)}function y(){var e=E.pop();if(null==e)return null;var r,n,t=e.move,e=(P=e.kings,v=e.turn,R=e.castling,d=e.ep_square,f=e.half_moves,A=e.move_number,v),o=swap_color(v);return I[t.from]=I[t.to],I[t.from].type=t.piece,I[t.to]=null,t.flags&BITS.CAPTURE?I[t.to]={type:t.captured,color:o}:t.flags&BITS.EP_CAPTURE&&(e=e===BLACK?t.to-16:t.to+16,I[e]={type:PAWN,color:o}),t.flags&(BITS.KSIDE_CASTLE|BITS.QSIDE_CASTLE)&&(t.flags&BITS.KSIDE_CASTLE?(r=t.to+1,n=t.to-1):t.flags&BITS.QSIDE_CASTLE&&(r=t.to-2,n=t.to+1),I[r]=I[n],I[n]=null),t}function U(e,r){for(var n=stripped_san(e),t=0;t<2;t++){if(t==PARSER_SLOPPY){if(!r)return null;var o,i,a,l,f=!1,u=n.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/);(u=u||n.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/))&&(o=u[1],i=u[2],a=u[3],l=u[4],1==i.length&&(f=!0))}for(var c=infer_piece_type(n),s=g({legal:!0,piece:o||c}),p=0,S=s.length;p<S;p++)switch(t){case PARSER_STRICT:if(n===stripped_san(_(s[p],s)))return s[p];break;case PARSER_SLOPPY:if(u){if(!(o&&o.toLowerCase()!=s[p].piece||SQUARE_MAP[i]!=s[p].from||SQUARE_MAP[a]!=s[p].to||l&&l.toLowerCase()!=s[p].promotion))return s[p];if(f){var A=algebraic(s[p].from);if(!(o&&o.toLowerCase()!=s[p].piece||SQUARE_MAP[a]!=s[p].to||i!=A[0]&&i!=A[1]||l&&l.toLowerCase()!=s[p].promotion))return s[p]}}}}return null}function S(e){var r,n=clone(e),t=(n.san=_(n,g({legal:!0})),n.to=algebraic(n.to),n.from=algebraic(n.from),"");for(r in BITS)BITS[r]&n.flags&&(t+=FLAGS[r]);return n.flags=t,n}return m(void 0===e?DEFAULT_POSITION:e),{load:function(e){return m(e)},reset:b,moves:function(e){for(var r=g(e),n=[],t=0,o=r.length;t<o;t++)void 0!==e&&"verbose"in e&&e.verbose?n.push(S(r[t])):n.push(_(r[t],g({legal:!0})));return n},in_check:t,in_checkmate:o,in_stalemate:i,in_draw:function(){return 100<=f||i()||a()||l()},insufficient_material:a,in_threefold_repetition:l,game_over:function(){return 100<=f||o()||i()||a()||l()},validate_fen:c,fen:O,board:function(){for(var e=[],r=[],n=SQUARE_MAP.a8;n<=SQUARE_MAP.h1;n++)null==I[n]?r.push(null):r.push({square:algebraic(n),type:I[n].type,color:I[n].color}),n+1&136&&(e.push(r),r=[],n+=8);return e},pgn:function(e){var t="object"==typeof e&&"string"==typeof e.newline_char?e.newline_char:"\n",o="object"==typeof e&&"number"==typeof e.max_width?e.max_width:0,i=[],r=!1;for(S in T)i.push("["+S+' "'+T[S]+'"]'+t),r=!0;r&&E.length&&i.push(t);function n(e){var r=h[O()];return e=void 0!==r?e+(0<e.length?" ":"")+`{${r}}`:e}for(var a=[];0<E.length;)a.push(y());var l=[],f="";for(0===a.length&&l.push(n(""));0<a.length;){f=n(f);var u,c=a.pop();E.length||"b"!==c.color?"w"===c.color&&(f.length&&l.push(f),f=A+"."):(u=A+". ...",f=f?f+" "+u:u),f=f+" "+_(c,g({legal:!0})),L(c)}if(f.length&&l.push(n(f)),void 0!==T.Result&&l.push(T.Result),0===o)return i.join("")+l.join(" ");for(var s=function(){return 0<i.length&&" "===i[i.length-1]&&(i.pop(),!0)},p=0,S=0;S<l.length;S++)p+l[S].length>o&&l[S].includes("{")?p=function(e,r){for(var n of r.split(" "))if(n){if(e+n.length>o){for(;s();)e--;i.push(t),e=0}i.push(n),e+=n.length,i.push(" "),e++}return s()&&e--,e}(p,l[S]):(p+l[S].length>o&&0!==S?(" "===i[i.length-1]&&i.pop(),i.push(t),p=0):0!==S&&(i.push(" "),p++),i.push(l[S]),p+=l[S].length);return i.join("")},load_pgn:function(e,r){var n=void 0!==r&&"sloppy"in r&&r.sloppy;function l(e){return e.replace(/\\/g,"\\")}e=e.trim();var t,o="object"==typeof r&&"string"==typeof r.newline_char?r.newline_char:"\r?\n",i=new RegExp("^(\\[((?:"+l(o)+")|.)*\\])(?:\\s*"+l(o)+"){2}"),i=i.test(e)?i.exec(e)[1]:"",a=(b(),function(e,r){for(var r="object"==typeof r&&"string"==typeof r.newline_char?r.newline_char:"\r?\n",n={},t=e.split(new RegExp(l(r))),o=0;o<t.length;o++){var i=/^\s*\[([A-Za-z]+)\s*"(.*)"\s*\]\s*$/,a=t[o].replace(i,"$1"),i=t[o].replace(i,"$2");0<trim(a).length&&(n[a]=i)}return n}(i,r)),f="";for(t in a)"fen"===t.toLowerCase()&&(f=a[t]),N([t,a[t]]);if(n){if(f&&!m(f,!0))return!1}else if("1"===a.SetUp&&!("FEN"in a&&m(a.FEN,!0)))return!1;function u(e){return e=e.replace(new RegExp(l(o),"g")," "),`{${c(e.slice(1,e.length-1))}}`}for(var c=function(e){return Array.from(e).map(function(e){return e.charCodeAt(0)<128?e.charCodeAt(0).toString(16):encodeURIComponent(e).replace(/\%/g,"").toLowerCase()}).join("")},s=function(e){return 0==e.length?"":decodeURIComponent("%"+e.match(/.{1,2}/g).join("%"))},p=e.replace(i,"").replace(new RegExp(`({[^}]*})+?|;([^${l(o)}]*)`,"g"),function(e,r,n){return void 0!==r?u(r):" "+u(`{${n.slice(1)}}`)}).replace(new RegExp(l(o),"g")," "),S=/(\([^\(\)]+\))+?/g;S.test(p);)p=p.replace(S,"");for(var A=(A=trim(p=(p=(p=p.replace(/\d+\.(\.\.)?/g,"")).replace(/\.\.\./g,"")).replace(/\$\d+/g,"")).split(new RegExp(/\s+/))).join(",").replace(/,,+/g,",").split(","),E="",g=0;g<A.length;g++){var _=function(e){if(e.startsWith("{")&&e.endsWith("}"))return s(e.slice(1,e.length-1))}(A[g]);if(void 0!==_)h[O()]=_;else if(null==(_=U(A[g],n))){if(!(-1<TERMINATION_MARKERS.indexOf(A[g])))return!1;E=A[g]}else E="",L(_)}return E&&Object.keys(T).length&&!T.Result&&N(["Result",E]),!0},header:function(){return N(arguments)},turn:function(){return v},move:function(e,r){var r=void 0!==r&&"sloppy"in r&&r.sloppy,n=null;if("string"==typeof e)n=U(e,r);else if("object"==typeof e)for(var t=g(),o=0,i=t.length;o<i;o++)if(!(e.from!==algebraic(t[o].from)||e.to!==algebraic(t[o].to)||"promotion"in t[o]&&e.promotion!==t[o].promotion)){n=t[o];break}if(!n)return null;r=S(n);return L(n),r},undo:function(){var e=y();return e?S(e):null},clear:function(){return u()},put:p,get:n,ascii(){for(var e,r="   +------------------------+\n",n=SQUARE_MAP.a8;n<=SQUARE_MAP.h1;n++)0===file(n)&&(r+=" "+"87654321"[rank(n)]+" |"),null==I[n]?r+=" . ":(e=I[n].type,r+=" "+(I[n].color===WHITE?e.toUpperCase():e.toLowerCase())+" "),n+1&136&&(r+="|\n",n+=8);return r=r+"   +------------------------+\n"+"     a  b  c  d  e  f  g  h"},remove:function(e){return r=n(e=e),I[SQUARE_MAP[e]]=null,r&&r.type===KING&&(P[r.color]=EMPTY),s(O()),r;var r},perft:function e(r){for(var n=g({legal:!1}),t=0,o=v,i=0,a=n.length;i<a;i++)L(n[i]),K(o)||(0<r-1?t+=e(r-1):t++),y();return t},square_color:function(e){return e in SQUARE_MAP?(rank(e=SQUARE_MAP[e])+file(e))%2==0?"light":"dark":null},history:function(e){for(var r=[],n=[],t=(void 0!==e&&"verbose"in e&&e.verbose);0<E.length;)r.push(y());for(;0<r.length;){var o=r.pop();t?n.push(S(o)):n.push(_(o,g({legal:!0}))),L(o)}return n},get_comment:function(){return h[O()]},set_comment:function(e){h[O()]=e.replace("{","[").replace("}","]")},delete_comment:function(){var e=h[O()];return delete h[O()],e},get_comments:function(){return r(),Object.keys(h).map(function(e){return{fen:e,comment:h[e]}})},delete_comments:function(){return r(),Object.keys(h).map(function(e){var r=h[e];return delete h[e],{fen:e,comment:r}})}}};export{BLACK,WHITE,EMPTY,PAWN,KNIGHT,BISHOP,ROOK,QUEEN,KING,SQUARES,FLAGS,Chess};
+/* The engine build is an ES module (it ends in export{...}); bridge it to a global. */
+window.Chess = Chess;
+</script>
+<script type="module">
+'use strict';
+const Chess = window.Chess;
+const BOOK = [{"name": "Italian Game", "side": "w", "moves": ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6", "d3", "d6", "O-O", "O-O"], "idea": "Slow build-up: c3 and d3 prepare d4 later, and Bc4 eyes f7."}, {"name": "Ruy Lopez (Closed)", "side": "w", "moves": ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "Nf6", "O-O", "Be7", "Re1", "b5", "Bb3", "d6", "c3"], "idea": "Bb5 hits the knight guarding e5; build with Re1, Bb3 and c3 before d4."}, {"name": "Scotch Game (Classical)", "side": "w", "moves": ["e4", "e5", "Nf3", "Nc6", "d4", "exd4", "Nxd4", "Nf6", "Nxc6", "bxc6", "e5", "Qe7", "Qe2", "Nd5", "c4"], "idea": "Open the center immediately with d4; the e5 push gains space."}, {"name": "Queen's Gambit Declined (Classical)", "side": "w", "moves": ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Be7", "e3", "O-O", "Nf3", "Nbd7", "Rc1", "c6"], "idea": "Pin the knight with Bg5, finish development, then prepare cxd5."}, {"name": "London System", "side": "w", "moves": ["d4", "d5", "Nf3", "Nf6", "Bf4", "e6", "e3", "c5", "c3", "Nc6", "Nbd2", "Bd6", "Bg3"], "idea": "A fixed, easy-to-remember setup: Bf4, e3, c3, Nbd2. No theory fights."}, {"name": "Vienna Game (Gambit)", "side": "w", "moves": ["e4", "e5", "Nc3", "Nf6", "f4", "d5", "fxe5", "Nxe4", "Nf3", "Be7", "d4"], "idea": "f4 strikes the center at once; recapture and hit back with d4."}, {"name": "English Opening (Reversed Sicilian)", "side": "w", "moves": ["c4", "e5", "Nc3", "Nf6", "g3", "d5", "cxd5", "Nxd5", "Bg2", "Nb6", "Nf3", "Nc6", "O-O"], "idea": "A Sicilian with an extra tempo: fianchetto and pressure d5."}, {"name": "Sicilian Defense (Najdorf)", "side": "b", "moves": ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "a6", "Bg5", "e6", "f4", "Be7"], "idea": "...a6 controls b5 and keeps both ...e5 and ...e6 available."}, {"name": "French Defense (Steinitz)", "side": "b", "moves": ["e4", "e6", "d4", "d5", "Nc3", "Nf6", "e5", "Nfd7", "f4", "c5", "Nf3", "Nc6"], "idea": "Bottle the knight in with Nfd7, then undermine e5 with ...c5."}, {"name": "Caro-Kann Defense (Classical)", "side": "b", "moves": ["e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Bf5", "Ng3", "Bg6", "h4", "h6", "Nf3", "Nd7"], "idea": "Develop the light-squared bishop OUTSIDE the pawn chain with Bf5."}, {"name": "King's Indian Defense (Mar del Plata)", "side": "b", "moves": ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "Nf3", "O-O", "Be2", "e5", "O-O", "Nc6", "d5", "Ne7"], "idea": "Fianchetto, castle, then hit the center with ...e5."}, {"name": "Slav Defense (Main Line)", "side": "b", "moves": ["d4", "d5", "c4", "c6", "Nf3", "Nf6", "Nc3", "dxc4", "a4", "Bf5", "e3", "e6", "Bxc4", "Bb4"], "idea": "Take on c4 and develop Bf5 before locking in with ...e6."}, {"name": "Nimzo-Indian Defense (Rubinstein)", "side": "b", "moves": ["d4", "Nf6", "c4", "e6", "Nc3", "Bb4", "e3", "O-O", "Bd3", "d5", "Nf3", "c5", "O-O", "Nc6"], "idea": "Pin the knight with Bb4, then hit the center with ...d5 and ...c5."}, {"name": "Philidor Defense", "side": "b", "moves": ["e4", "e5", "Nf3", "d6", "d4", "exd4", "Nxd4", "Nf6", "Nc3", "Be7"], "idea": "A solid, low-theory e5 defense: keep d6, trade in the center."}, {"name": "Ruy Lopez (Closed, as Black)", "side": "b", "moves": ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "Nf6", "O-O", "Be7", "Re1", "b5", "Bb3", "d6", "c3", "O-O"], "idea": "...a6 and ...b5 claim space; tuck the bishop to e7 and castle."}];
+
+/* ---------- safe storage (localStorage may be blocked on file://) ---------- */
+const store = (() => {
+  try {
+    const k = '__cot_test__';
+    localStorage.setItem(k, '1');
+    localStorage.removeItem(k);
+    return localStorage;
+  } catch (e) {
+    const mem = {};
+    return {
+      getItem: k => (k in mem ? mem[k] : null),
+      setItem: (k, v) => { mem[k] = String(v); },
+      removeItem: k => { delete mem[k]; }
+    };
+  }
+})();
+
+const PKEY = 'cot.progress.v1';
+const SKEY = 'cot.sound.v1';
+let progress = {};
+try { progress = JSON.parse(store.getItem(PKEY) || '{}') || {}; } catch (e) { progress = {}; }
+function saveProgress() { store.setItem(PKEY, JSON.stringify(progress)); }
+
+/* ---------- tiny synth sounds (no assets) ---------- */
+let soundOn = store.getItem(SKEY) !== '0';
+let actx = null;
+function ac() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function tone(freq, dur, type, gain, delay) {
+  if (!soundOn) return;
+  const ctx = ac(); if (!ctx) return;
+  const t0 = ctx.currentTime + (delay || 0);
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(gain || 0.1, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t0); o.stop(t0 + dur + 0.02);
+}
+const sfx = {
+  move()   { tone(560, .06, 'sine', .07); },
+  bot()    { tone(430, .06, 'sine', .05); },
+  capture(){ tone(300, .09, 'triangle', .1); },
+  wrong()  { tone(150, .18, 'sawtooth', .09); },
+  win()    { tone(523, .1, 'sine', .1); tone(659, .1, 'sine', .1, .1); tone(784, .18, 'sine', .12, .2); }
+};
+
+/* ---------- state ---------- */
+const $ = id => document.getElementById(id);
+const norm = s => s.replace(/[+#!?]/g, '');
+const strip = s => s.replace(/[+#]/g, '');
+const FILES = 'abcdefgh';
+const GLYPH = { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
+
+let drill = null;      // current BOOK entry
+let game = null;       // chess.js instance
+let idx = 0;           // index of next halfmove in drill.moves
+let flawed = false;    // hint / show / wrong move used -> not "perfect"
+let busy = false;      // bot is "thinking"
+let over = false;      // drill finished
+let sel = null;        // selected square
+let lastMove = null;
+let lastDrillName = null;
+let botTimer = null;
+
+function userTurn() { return game.turn() === drill.side; }
+
+/* ---------- views ---------- */
+function showView(v) {
+  $('homeView').classList.toggle('hidden', v !== 'home');
+  $('drillView').classList.toggle('hidden', v !== 'drill');
+  $('homeBtn').classList.toggle('hidden', v !== 'drill');
+}
+function hideOverlay() { $('overlay').classList.add('hidden'); }
+
+/* ---------- home ---------- */
+function renderHome() {
+  const grid = $('openingGrid');
+  grid.innerHTML = '';
+  for (const d of BOOK) {
+    const p = progress[d.name];
+    const pct = p && p.drills ? Math.round(100 * p.perfect / p.drills) : null;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      `<div class="cardTop"><h3>${d.name}</h3>` +
+      `<span class="chip ${d.side}">${d.side === 'w' ? 'White' : 'Black'}</span></div>` +
+      `<div class="bar"><i style="width:${pct || 0}%"></i></div>` +
+      `<div class="cardMeta">${p && p.drills ? p.drills + (p.drills === 1 ? ' drill · ' : ' drills · ') + pct + '% perfect' : 'not drilled yet'}</div>`;
+    card.addEventListener('click', () => startDrill(d));
+    grid.appendChild(card);
+  }
+  const tot = Object.values(progress).reduce((a, p) => { a.d += p.drills; a.p += p.perfect; return a; }, { d: 0, p: 0 });
+  $('overallStats').textContent = tot.d
+    ? `${tot.d} drill${tot.d === 1 ? '' : 's'} completed · ${Math.round(100 * tot.p / tot.d)}% perfect overall`
+    : 'No drills yet — hit Start training!';
+}
+
+function pickDrill(exclude) {
+  const pool = BOOK.filter(d => d.name !== exclude);
+  const use = pool.length ? pool : BOOK;
+  const weights = use.map(d => {
+    const p = progress[d.name];
+    if (!p || !p.drills) return 3;
+    return 0.3 + (1 - p.perfect / p.drills);
+  });
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < use.length; i++) { r -= weights[i]; if (r <= 0) return use[i]; }
+  return use[use.length - 1];
+}
+
+/* ---------- drill ---------- */
+function startDrill(d) {
+  clearTimeout(botTimer);
+  drill = d; game = new Chess();
+  idx = 0; flawed = false; over = false; busy = false;
+  sel = null; lastMove = null;
+  lastDrillName = d.name;
+  $('drillName').textContent = d.name;
+  const chip = $('sideChip');
+  chip.textContent = d.side === 'w' ? 'You play White' : 'You play Black';
+  chip.className = 'chip ' + d.side;
+  $('drillIdea').textContent = 'Idea: ' + d.idea;
+  $('feedback').textContent = '';
+  $('feedback').className = 'feedback';
+  showView('drill');
+  hideOverlay();
+  renderAll();
+  if (!userTurn()) scheduleBot(); else setStatus();
+}
+
+function setStatus() {
+  const el = $('status');
+  if (over) return;
+  if (busy) { el.textContent = 'Bot is thinking…'; return; }
+  const n = Math.floor(idx / 2) + 1;
+  el.textContent = `Move ${n}${game.turn() === 'w' ? '.' : '...'} — your move`;
+}
+
+function numbered(start) {
+  const parts = [];
+  for (let i = start; i < drill.moves.length; i++) {
+    parts.push(i % 2 === 0 ? (i / 2 + 1) + '.' + drill.moves[i] : drill.moves[i]);
+  }
+  return parts.join(' ');
+}
+
+function scheduleBot() {
+  busy = true;
+  setStatus();
+  botTimer = setTimeout(() => {
+    let mv = null;
+    try { mv = game.move(drill.moves[idx]); } catch (e) { console.error('bad book move', drill.moves[idx]); }
+    if (!mv) { finish('done'); return; }
+    idx++;
+    lastMove = { from: mv.from, to: mv.to };
+    sfx[mv.captured ? 'capture' : 'bot']();
+    renderAll();
+    if (idx >= drill.moves.length) finish('done');
+    else { busy = false; setStatus(); }
+  }, 550);
+}
+
+function attemptMove(from, to) {
+  let mv = null;
+  try { mv = game.move({ from, to, promotion: 'q' }); } catch (e) { mv = null; }
+  if (!mv) return null;
+  if (norm(mv.san) !== norm(drill.moves[idx])) {
+    game.undo();
+    flawed = true;
+    feedback(`✗ ${strip(mv.san)} is not the theory move here — try again.`, 'bad');
+    sfx.wrong();
+    return { wrong: true, from, to };
+  }
+  idx++;
+  lastMove = { from, to };
+  const f = $('feedback'); f.textContent = ''; f.className = 'feedback';
+  sfx[mv.captured ? 'capture' : 'move']();
+  return { wrong: false };
+}
+
+function finish(kind) {  // 'done' | 'gaveup'
+  clearTimeout(botTimer);
+  over = true; busy = false; sel = null;
+  const perfect = kind === 'done' && !flawed;
+  const p = progress[drill.name] || (progress[drill.name] = { drills: 0, perfect: 0 });
+  p.drills++;
+  if (perfect) p.perfect++;
+  saveProgress();
+  $('resultTitle').textContent = kind === 'gaveup' ? '🏳️ Gave up' : (perfect ? '🏆 Perfect!' : '✓ Line complete');
+  $('resultLine').textContent = numbered(0);
+  $('resultIdea').textContent = drill.idea;
+  $('overlay').classList.remove('hidden');
+  renderAll();
+  if (perfect) sfx.win();
+}
+
+function feedback(msg, cls) {
+  const f = $('feedback');
+  f.textContent = msg;
+  f.className = 'feedback ' + (cls || '');
+}
+
+/* ---------- in-drill commands ---------- */
+function hint() {
+  if (over || busy || !userTurn()) return;
+  flawed = true;
+  const want = norm(drill.moves[idx]);
+  const m = game.moves({ verbose: true }).find(x => norm(x.san) === want);
+  feedback(`💡 Hint: play ${drill.moves[idx]}`, 'info');
+  if (m) pulseSquare(m.from);
+}
+function showLine() {
+  if (over || busy) return;
+  flawed = true;
+  feedback('📜 Remaining: ' + numbered(idx), 'info');
+}
+function giveUp() {
+  if (over) return;
+  finish('gaveup');
+}
+
+/* ---------- board rendering ---------- */
+function squareName(f, r) { return FILES[f] + (r + 1); }
+
+function findKing(color) {
+  const rows = game.board();
+  for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) {
+    const p = rows[r][f];
+    if (p && p.type === 'k' && p.color === color) return FILES[f] + (8 - r);
+  }
+  return null;
+}
+
+function renderBoard() {
+  const flip = drill.side === 'b';
+  const rankOrder = flip ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
+  const fileOrder = flip ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+  const canPick = !busy && !over && userTurn();
+  const targets = (sel && canPick)
+    ? new Set(game.moves({ square: sel, verbose: true }).map(m => m.to)) : null;
+  const checkSq = game.in_check() ? findKing(game.turn()) : null;
+
+  let html = '';
+  for (const r of rankOrder) {
+    for (const f of fileOrder) {
+      const sq = squareName(f, r);
+      let cls = 'sq ' + ((f + r) % 2 === 1 ? 'light' : 'dark');
+      if (sel === sq) cls += ' sel';
+      if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cls += ' last';
+      if (checkSq === sq) cls += ' check';
+      let inner = '';
+      const p = game.get(sq);
+      if (p) inner += `<span class="piece ${p.color}">${GLYPH[p.type]}</span>`;
+      if (targets && targets.has(sq)) inner += game.get(sq) ? '<span class="ring"></span>' : '<span class="dot"></span>';
+      if (f === fileOrder[0]) inner += `<span class="coord rank">${r + 1}</span>`;
+      if (r === rankOrder[7]) inner += `<span class="coord file">${FILES[f]}</span>`;
+      html += `<div class="${cls}" data-square="${sq}">${inner}</div>`;
+    }
+  }
+  $('board').innerHTML = html;
+}
+
+function renderMoveList() {
+  const el = $('moveList');
+  el.innerHTML = '';
+  for (let i = 0; i < idx; i += 2) {
+    const num = document.createElement('span');
+    num.className = 'mvNum';
+    num.textContent = (i / 2 + 1) + '.';
+    const w = document.createElement('span');
+    w.textContent = drill.moves[i];
+    if (drill.side === 'w') w.classList.add('mine');
+    const b = document.createElement('span');
+    if (i + 1 < idx && drill.moves[i + 1]) {
+      b.textContent = drill.moves[i + 1];
+      if (drill.side === 'b') b.classList.add('mine');
+    } else b.innerHTML = '&nbsp;';
+    el.append(num, w, b);
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderAll() { renderBoard(); renderMoveList(); setStatus(); }
+
+function flashSquares(list) {
+  for (const sq of list) {
+    const el = document.querySelector(`[data-square="${sq}"]`);
+    if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 450); }
+  }
+}
+function pulseSquare(sq) {
+  const el = document.querySelector(`[data-square="${sq}"]`);
+  if (el) { el.classList.add('pulse'); setTimeout(() => el.classList.remove('pulse'), 1700); }
+}
+
+/* ---------- interaction ---------- */
+function onSquare(sq) {
+  if (over || busy || !userTurn()) return;
+  const piece = game.get(sq);
+  if (sel) {
+    if (sq === sel) { sel = null; renderAll(); return; }
+    const targets = game.moves({ square: sel, verbose: true }).map(m => m.to);
+    if (targets.includes(sq)) {
+      const res = attemptMove(sel, sq);
+      sel = null;
+      renderAll();
+      if (res) {
+        if (res.wrong) flashSquares([res.from, res.to]);
+        else if (idx >= drill.moves.length) finish('done');
+        else scheduleBot();
+      }
+      return;
+    }
+  }
+  sel = (piece && piece.color === drill.side) ? sq : null;
+  renderAll();
+}
+
+function goHome() {
+  clearTimeout(botTimer);
+  over = true;
+  hideOverlay();
+  renderHome();
+  showView('home');
+}
+
+$('board').addEventListener('click', e => {
+  const el = e.target.closest('[data-square]');
+  if (el) onSquare(el.dataset.square);
+});
+$('trainBtn').addEventListener('click', () => startDrill(pickDrill(lastDrillName)));
+$('hintBtn').addEventListener('click', hint);
+$('showBtn').addEventListener('click', showLine);
+$('giveupBtn').addEventListener('click', giveUp);
+$('restartBtn').addEventListener('click', () => startDrill(drill));
+$('homeBtn').addEventListener('click', goHome);
+$('nextBtn').addEventListener('click', () => { hideOverlay(); startDrill(pickDrill(drill.name)); });
+$('menuBtn').addEventListener('click', goHome);
+$('resetBtn').addEventListener('click', () => {
+  if (confirm('Reset all saved progress?')) { progress = {}; saveProgress(); renderHome(); }
+});
+$('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn;
+  store.setItem(SKEY, soundOn ? '1' : '0');
+  $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+});
+
+function renderSound() { $('soundBtn').textContent = soundOn ? '🔊' : '🔇'; }
+renderSound();
+renderHome();
+showView('home');
+</script>
+</body>
+</html>
