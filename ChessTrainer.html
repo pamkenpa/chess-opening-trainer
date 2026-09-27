@@ -63,8 +63,8 @@ header .actions{display:flex;gap:8px}
 /* ---------- board (chess.com style) ---------- */
 .main{max-width:1080px;margin:0 auto;padding:8px 22px 44px}
 .layout{display:flex;gap:30px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
-.boardWrap{flex:0 0 auto}
-.board{display:grid;grid-template-columns:repeat(8,1fr);width:min(92vw,64vh,560px);aspect-ratio:1;
+.boardWrap{flex:0 0 auto;width:min(560px,64vh);max-width:100%}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:1;
   border-radius:6px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.55);
   container-type:inline-size;user-select:none;touch-action:manipulation}
 .sq{position:relative}
@@ -134,6 +134,7 @@ header .actions{display:flex;gap:8px}
 .resultIdea{color:var(--dim);font-size:14px;font-style:italic;margin-bottom:20px;line-height:1.6}
 
 @media (max-width:900px){
+  .main{padding:8px 14px 40px}
   .layout{flex-direction:column;align-items:center}
   .panel{width:100%;max-width:560px}
 }
