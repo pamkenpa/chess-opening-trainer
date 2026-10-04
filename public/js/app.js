@@ -1,8 +1,8 @@
-import { Chess } from '../vendor/chess.esm.js?v=3';
-import { BUILTIN_LINES } from './lines.js?v=3';
-import { Board } from './board.js?v=3';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=3';
-import { sfx, setSound } from './sound.js?v=3';
+import { Chess } from '../vendor/chess.esm.js?v=4';
+import { BUILTIN_LINES } from './lines.js?v=4';
+import { Board } from './board.js?v=4';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=4';
+import { sfx, setSound } from './sound.js?v=4';
 
 /* ---------------- storage ---------------- */
 
@@ -259,12 +259,13 @@ function showBookMove() {
   practice.deviation = null;
   practice.misses++;
   practice.usedShow = true;
-  const mv = game.move(line.moves[ply]);
+  const played = line.moves[ply];
+  const mv = game.move(played);
   practice.rendered.push({ san: mv.san, byUser: true, mv });
   practice.ply++;
   practice.phase = 'user';
   renderPractice();
-  coach(`The book move (${line.moves[ply - 1]}) played for you. Watch how the pieces cooperate.`, 'info');
+  coach(`The book move (${played}) played for you. Watch how the pieces cooperate.`, 'info');
   coachActions([]);
   if (practice.ply >= line.moves.length) completeLine(false);
   else botMove();
@@ -728,7 +729,7 @@ $('set-theme').onchange = (e) => { settings.theme = e.target.value; document.bod
 /* ---------------- keyboard ---------------- */
 
 document.addEventListener('keydown', (e) => {
-  if (e.target.matches('input, textarea, select')) return;
+  if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
   const k = e.key.toLowerCase();
   if (k === 'escape') { $('modal-settings').classList.add('hidden'); return; }
   if (!$('modal-settings').classList.contains('hidden')) return; // modal open: no game shortcuts

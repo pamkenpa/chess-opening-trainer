@@ -67,6 +67,10 @@ scripts/
 
 ## Publishing
 
+When you change `public/js/*` or CSS and want the change visible immediately, bump the
+`?v=N` suffix in `public/index.html` (and in the imports inside `js/app.js`); browsers
+cache assets for 10 minutes otherwise.
+
 The app is a **static site**: everything it needs is in `public/`, including the
 Stockfish WASM and its neural net. No backend required.
 
