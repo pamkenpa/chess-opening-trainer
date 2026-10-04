@@ -81,6 +81,8 @@ Stockfish WASM and its neural net. No backend required.
   GitHub Pages or Vercel. No build step, no headers needed (the engine build is
   single-threaded and works without COOP/COEP).
 
+Piece set: **cburnett** by Colin M.L. Burnett, licensed CC BY-SA 3.0 (via lichess), in public/pieces/.
+
 ## Troubleshooting
 
 - **"Engine error"** — the header dot turns red with a message in Settings. Reload the

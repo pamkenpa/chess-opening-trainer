@@ -2,8 +2,16 @@
 // click-to-move + drag-and-drop. The board is dumb — all rules live in the app;
 // it asks the app which pieces may be picked and which targets are legal.
 
-const GLYPHS = { k: '\u265A', q: '\u265B', r: '\u265C', b: '\u265D', n: '\u265E', p: '\u265F' };
+// cburnett SVG piece set (CC BY-SA 3.0, via lichess) — files in pieces/
 const FILES = 'abcdefgh'.split('');
+
+function pieceImg(color, type) {
+  const img = document.createElement('img');
+  img.src = `pieces/${color}${type.toUpperCase()}.svg`;
+  img.draggable = false;
+  img.alt = '';
+  return img;
+}
 
 export class Board {
   constructor(container, opts = {}) {
@@ -93,8 +101,8 @@ export class Board {
       const p = map[name];
       if (p) {
         const span = document.createElement('span');
-        span.className = `piece ${p.color === 'w' ? 'white' : 'black'}`;
-        span.textContent = GLYPHS[p.type];
+        span.className = 'piece';
+        span.appendChild(pieceImg(p.color, p.type));
         span.dataset.square = name;
         sq.appendChild(span);
       }
@@ -164,8 +172,7 @@ export class Board {
     this._dragging.rect = boardRect;
     const move = (ev) => {
       this._dragging.moved = true;
-      this.ghost.textContent = GLYPHS[piece.type];
-      this.ghost.className = 'piece ' + (piece.color === 'w' ? 'white' : 'black');
+      if (!this.ghost.firstChild) this.ghost.appendChild(pieceImg(piece.color, piece.type));
       this.ghost.style.display = 'block';
       this.ghost.style.left = ev.clientX + 'px';
       this.ghost.style.top = ev.clientY + 'px';
@@ -180,6 +187,7 @@ export class Board {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       this.ghost.style.display = 'none';
+      this.ghost.innerHTML = '';
       const drag = this._dragging;
       this._dragging = null;
       for (const sq of Object.values(this.squares)) sq.classList.remove('hover');
@@ -214,8 +222,7 @@ export class Board {
     for (const t of ['q', 'r', 'n', 'b']) {
       const b = document.createElement('button');
       const color = this._pieceMap[from].color;
-      b.textContent = GLYPHS[t];
-      if (color === 'w') b.style.color = '#fafaf6'; else b.style.color = '#2b2b28';
+      b.appendChild(pieceImg(color, t));
       b.onclick = (ev) => {
         ev.stopPropagation();
         picker.remove();
