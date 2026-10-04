@@ -183,22 +183,27 @@ export class Board {
         if (sqEl && this._dragging.targets.some(t => t.to === sqEl.dataset.square)) sqEl.classList.add('hover');
       }
     };
-    const up = (ev) => {
+    const cleanup = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', cancel);
+    };
+    const resetGhost = () => {
       this.ghost.style.display = 'none';
       this.ghost.innerHTML = '';
+      for (const sq of Object.values(this.squares)) sq.classList.remove('hover');
+    };
+    const up = (ev) => {
+      cleanup();
+      resetGhost();
       const drag = this._dragging;
       this._dragging = null;
-      for (const sq of Object.values(this.squares)) sq.classList.remove('hover');
 
       let dest = null;
       if (drag.moved) {
         const el = document.elementFromPoint(ev.clientX, ev.clientY);
         const sqEl = el && el.closest('.sq');
         if (sqEl && drag.targets.some(t => t.to === sqEl.dataset.square)) dest = sqEl.dataset.square;
-      } else {
-        dest = null; // simple click: keep selection (click-to-move mode)
       }
 
       if (dest && dest !== drag.from) {
@@ -208,8 +213,15 @@ export class Board {
       }
       // if no dest: selection stays for click-click play
     };
+    const cancel = () => {
+      cleanup();
+      resetGhost();
+      this._dragging = null;
+      this._deselect();
+    };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', cancel);
   }
 
   _maybePromote(from, to, targets) {

@@ -1,8 +1,8 @@
-import { Chess } from '../vendor/chess.esm.js?v=2';
-import { BUILTIN_LINES } from './lines.js?v=2';
-import { Board } from './board.js?v=2';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=2';
-import { sfx, setSound } from './sound.js?v=2';
+import { Chess } from '../vendor/chess.esm.js?v=3';
+import { BUILTIN_LINES } from './lines.js?v=3';
+import { Board } from './board.js?v=3';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=3';
+import { sfx, setSound } from './sound.js?v=3';
 
 /* ---------------- storage ---------------- */
 
@@ -529,7 +529,7 @@ $('file-import').onchange = (e) => {
       if (!Array.isArray(data)) throw new Error('not an array');
       let n = 0;
       for (const l of data) {
-        if (l && typeof l.moves === 'object' && typeof l.side === 'string') {
+        if (l && Array.isArray(l.moves) && typeof l.side === 'string') {
           customLines.push({
             id: 'c' + Date.now().toString(36) + n + Math.floor(Math.random() * 999),
             name: String(l.name || 'Imported line').slice(0, 80),
@@ -730,7 +730,8 @@ $('set-theme').onchange = (e) => { settings.theme = e.target.value; document.bod
 document.addEventListener('keydown', (e) => {
   if (e.target.matches('input, textarea, select')) return;
   const k = e.key.toLowerCase();
-  if (k === 'escape') $('modal-settings').classList.add('hidden');
+  if (k === 'escape') { $('modal-settings').classList.add('hidden'); return; }
+  if (!$('modal-settings').classList.contains('hidden')) return; // modal open: no game shortcuts
   if (k === 'h') $('btn-hint').click();
   if (k === 's') $('btn-show').click();
   if (k === 'r') $('btn-retry').click();

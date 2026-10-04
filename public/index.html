@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Opening Trainer</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body data-theme="wood">
 
@@ -85,7 +85,7 @@
         <textarea id="pgn-input" rows="10" placeholder="[Event ...]&#10;1. e4 e5 2. Nf3 Nc6 ..."></textarea>
         <div class="btn-row">
           <select id="pgn-side">
-            <option value="auto">Auto-detect by result</option>
+            <option value="auto">Auto (train as White)</option>
             <option value="white">Train as White</option>
             <option value="black">Train as Black</option>
           </select>
@@ -185,6 +185,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script type="module" src="js/app.js?v=2"></script>
+<script type="module" src="js/app.js?v=3"></script>
 </body>
 </html>
