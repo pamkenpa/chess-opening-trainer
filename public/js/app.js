@@ -1,8 +1,8 @@
-import { Chess } from '../vendor/chess.esm.js';
-import { BUILTIN_LINES } from './lines.js';
-import { Board } from './board.js';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js';
-import { sfx, setSound } from './sound.js';
+import { Chess } from '../vendor/chess.esm.js?v=2';
+import { BUILTIN_LINES } from './lines.js?v=2';
+import { Board } from './board.js?v=2';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=2';
+import { sfx, setSound } from './sound.js?v=2';
 
 /* ---------------- storage ---------------- */
 
