@@ -1,0 +1,13 @@
+{
+  "name": "chess-opening-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "validate": "node scripts/validate-lines.mjs"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "stockfish": "^16.0.0"
+  }
+}

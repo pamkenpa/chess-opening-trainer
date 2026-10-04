@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Opening Trainer</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="wood">
+
+<header>
+  <div class="brand">
+    <span class="logo">&#9822;</span>
+    <h1>Opening Trainer</h1>
+  </div>
+  <nav id="tabs">
+    <button class="tab active" data-tab="practice">Practice</button>
+    <button class="tab" data-tab="repertoire">Repertoire</button>
+    <button class="tab" data-tab="stats">Stats</button>
+    <button class="tab" data-tab="free">Free Play</button>
+  </nav>
+  <div class="head-right">
+    <span id="engine-status" class="status" title="Stockfish engine status">
+      <span class="dot"></span><span id="engine-label">engine loading&hellip;</span>
+    </span>
+    <button id="btn-settings" class="icon-btn" title="Settings">&#9881;</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- PRACTICE -->
+  <section id="panel-practice" class="panel active">
+    <div class="board-col">
+      <div id="board-practice" class="board-wrap"></div>
+    </div>
+    <div class="side-col">
+      <div class="card line-card">
+        <div class="line-head">
+          <span id="pr-line-side" class="chip"></span>
+          <h2 id="pr-line-name">No line selected</h2>
+          <span id="pr-line-eco" class="eco"></span>
+        </div>
+        <div id="pr-progress" class="progress"><div class="progress-fill"></div></div>
+        <div id="pr-movecount" class="muted small">Pick a line from the Repertoire tab.</div>
+      </div>
+
+      <div class="card coach">
+        <div class="coach-head">Coach</div>
+        <div id="coach-msg" class="coach-msg">Welcome! Your training partner (Stockfish 16) is the opponent; play your repertoire moves and the coach keeps you honest.</div>
+        <div id="coach-actions" class="coach-actions"></div>
+      </div>
+
+      <div class="card">
+        <div class="moves-head">Moves</div>
+        <ol id="pr-moves" class="moves"></ol>
+        <div id="pr-tip" class="tip hidden"></div>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-hint" class="btn" title="Show the square the piece starts on (H)">Hint</button>
+        <button id="btn-show" class="btn" title="Play the book move for me (S)">Show move</button>
+        <button id="btn-retry" class="btn" title="Restart this line (R)">Retry</button>
+        <button id="btn-nextdue" class="btn primary" title="Practice the next due line (N)">Next due</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPERTOIRE -->
+  <section id="panel-repertoire" class="panel">
+    <div class="rep-layout">
+      <div class="card rep-list">
+        <h2>Your repertoire</h2>
+        <div id="rep-filter" class="filter-row">
+          <button class="btn small active" data-filter="all">All</button>
+          <button class="btn small" data-filter="white">White</button>
+          <button class="btn small" data-filter="black">Black</button>
+          <button class="btn small" data-filter="due">Due</button>
+        </div>
+        <div id="rep-table"></div>
+      </div>
+      <div class="card rep-import">
+        <h2>Import lines (PGN)</h2>
+        <p class="muted small">Paste one or more PGN games. Main line only; choose which colour you want to train. The opening name comes from the PGN tags when present.</p>
+        <textarea id="pgn-input" rows="10" placeholder="[Event ...]&#10;1. e4 e5 2. Nf3 Nc6 ..."></textarea>
+        <div class="btn-row">
+          <select id="pgn-side">
+            <option value="auto">Auto-detect by result</option>
+            <option value="white">Train as White</option>
+            <option value="black">Train as Black</option>
+          </select>
+          <button id="btn-import" class="btn primary">Import</button>
+        </div>
+        <div id="import-msg" class="small"></div>
+        <hr>
+        <div class="btn-row">
+          <button id="btn-export" class="btn">Export my lines (JSON)</button>
+          <label class="btn" for="file-import">Import JSON</label>
+          <input type="file" id="file-import" accept=".json" hidden>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="panel-stats" class="panel">
+    <div class="stats-cards">
+      <div class="card stat"><div class="stat-num" id="st-lines">0</div><div class="stat-label">lines in repertoire</div></div>
+      <div class="card stat"><div class="stat-num" id="st-due">0</div><div class="stat-label">due for practice</div></div>
+      <div class="card stat"><div class="stat-num" id="st-runs">0</div><div class="stat-label">total runs</div></div>
+      <div class="card stat"><div class="stat-num" id="st-acc">&ndash;</div><div class="stat-label">clean first-try rate</div></div>
+    </div>
+    <div class="card">
+      <h2>Per-line history</h2>
+      <div id="stats-table"></div>
+      <div class="btn-row"><button id="btn-reset-stats" class="btn danger">Reset all stats</button></div>
+    </div>
+  </section>
+
+  <!-- FREE PLAY -->
+  <section id="panel-free" class="panel">
+    <div class="board-col">
+      <div id="board-free" class="board-wrap"></div>
+    </div>
+    <div class="side-col">
+      <div class="card">
+        <h2>Play Stockfish</h2>
+        <div class="free-controls">
+          <label>Colour
+            <select id="fp-color">
+              <option value="white">White</option>
+              <option value="black">Black</option>
+            </select>
+          </label>
+          <label>Engine strength
+            <select id="fp-strength">
+              <option value="1350">~1350 Elo (beginner)</option>
+              <option value="1600">~1600 Elo</option>
+              <option value="1900" selected>~1900 Elo (club)</option>
+              <option value="2200">~2200 Elo</option>
+              <option value="2500">~2500 Elo</option>
+              <option value="max">Full strength</option>
+            </select>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button id="fp-new" class="btn primary">New game</button>
+          <button id="fp-resign" class="btn">Resign</button>
+        </div>
+        <div id="fp-result" class="muted small"></div>
+      </div>
+      <div class="card">
+        <div class="moves-head">Moves <span id="fp-eval" class="eval-tag"></span></div>
+        <ol id="fp-moves" class="moves"></ol>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Settings modal -->
+<div id="modal-settings" class="modal hidden">
+  <div class="modal-box">
+    <h2>Settings</h2>
+    <label class="check"><input type="checkbox" id="set-sound"> Sound effects</label>
+    <label class="check"><input type="checkbox" id="set-coords"> Board coordinates</label>
+    <label>Engine evaluation depth (deviation checks)
+      <select id="set-depth">
+        <option value="8">8 — fast</option>
+        <option value="12" selected>12 — balanced</option>
+        <option value="16">16 — thorough</option>
+      </select>
+    </label>
+    <label>Board theme
+      <select id="set-theme">
+        <option value="wood">Wood</option>
+        <option value="ocean">Ocean</option>
+        <option value="forest">Forest</option>
+      </select>
+    </label>
+    <div id="set-engine-info" class="muted small"></div>
+    <div class="btn-row"><button id="set-close" class="btn primary">Done</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
