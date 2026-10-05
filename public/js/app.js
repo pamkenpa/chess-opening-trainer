@@ -1,8 +1,8 @@
-import { Chess } from '../vendor/chess.esm.js?v=5';
-import { BUILTIN_LINES } from './lines.js?v=5';
-import { Board } from './board.js?v=5';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=5';
-import { sfx, setSound } from './sound.js?v=5';
+import { Chess } from '../vendor/chess.esm.js?v=6';
+import { BUILTIN_LINES } from './lines.js?v=6';
+import { Board } from './board.js?v=6';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=6';
+import { sfx, setSound } from './sound.js?v=6';
 
 /* ---------------- storage ---------------- */
 
@@ -378,21 +378,9 @@ function completeLine(variant) {
     isClean || variant ? 'good' : 'info'
   );
   coachActions([
-    { label: 'Practice again', onClick: () => startLine(practice.line) },
-    { label: 'Next due line', primary: true, onClick: nextDueLine }
+    { label: 'Practice again', primary: true, onClick: () => startLine(practice.line) }
   ]);
   renderPractice();
-}
-
-function nextDueLine() {
-  const now = Date.now();
-  const lines = allLines();
-  if (!lines.length) { toast('Import or pick a line first.'); return; }
-  const due = lines.filter(l => (getStats(l.id).due || 0) <= now);
-  const pool = due.length ? due : lines;
-  // prefer shortest due / least practiced
-  pool.sort((a, b) => (getStats(a.id).due || 0) - (getStats(b.id).due || 0) || (getStats(a.id).runs - getStats(b.id).runs));
-  startLine(pool[0]);
 }
 
 $('btn-hint').onclick = () => {
@@ -411,11 +399,23 @@ $('btn-show').onclick = () => {
   else if (practice.phase === 'user') showBookMove();
 };
 $('btn-retry').onclick = () => practice.line && startLine(practice.line);
-$('btn-nextdue').onclick = nextDueLine;
 
 /* ---------------- repertoire ---------------- */
 
 let repFilter = 'all';
+
+const FAMILIES = [
+  { id: 'kings-pawn', name: 'King\u2019s Pawn Opening' },
+  { id: 'italian', name: 'Italian Game' },
+  { id: 'ruy', name: 'Ruy Lopez' },
+  { id: 'qgd', name: 'Queen\u2019s Gambit Declined' },
+  { id: 'london', name: 'London System' },
+  { id: 'caro', name: 'Caro-Kann Defence' },
+  { id: 'najdorf', name: 'Sicilian Najdorf' },
+  { id: 'slav', name: 'Slav Defence' },
+  { id: 'imported', name: 'Imported & Custom' }
+];
+let openFamilies = new Set(store.get('ot.openFamilies', []));
 
 function renderRepertoire() {
   const now = Date.now();
@@ -427,37 +427,81 @@ function renderRepertoire() {
     if (repFilter === 'due') return (getStats(l.id).due || 0) <= now;
     return true;
   });
-  if (!lines.length) { box.innerHTML = '<p class="muted">No lines here yet \u2014 import a PGN on the right.</p>'; return; }
+  if (!lines.length) { box.innerHTML = '<p class="muted">No lines match this filter yet \u2014 import a PGN on the right.</p>'; return; }
+
+  const groups = new Map();
   for (const l of lines) {
-    const st = getStats(l.id);
-    const item = document.createElement('div');
-    item.className = 'rep-item' + (l.custom ? ' custom' : '');
-    const dueTxt = !st.last ? 'never practiced'
-      : st.due <= now ? 'due now' : 'due ' + new Date(st.due).toLocaleDateString();
-    item.innerHTML = `
+    const fid = l.family || 'imported';
+    if (!groups.has(fid)) groups.set(fid, []);
+    groups.get(fid).push(l);
+  }
+  for (const fam of FAMILIES) {
+    const famLines = groups.get(fam.id);
+    if (!famLines || !famLines.length) continue;
+    groups.delete(fam.id);
+    box.appendChild(familyBlock(fam, famLines, now));
+  }
+  for (const [fid, famLines] of groups) {
+    const fam = FAMILIES.find(f => f.id === fid) || { id: fid, name: fid };
+    box.appendChild(familyBlock(fam, famLines, now));
+  }
+}
+
+function familyBlock(fam, famLines, now) {
+  const block = document.createElement('div');
+  block.className = 'family' + (openFamilies.has(fam.id) ? ' open' : '');
+  const dueCount = famLines.filter(l => (getStats(l.id).due || 0) <= now).length;
+
+  const head = document.createElement('button');
+  head.className = 'family-head';
+  head.innerHTML = `<span class="caret">&#9656;</span><span class="family-name">${fam.name}</span>` +
+    `<span class="family-count">${famLines.length} variation${famLines.length === 1 ? '' : 's'}</span>` +
+    (dueCount ? `<span class="due-badge">${dueCount} due</span>` : '');
+  head.onclick = () => {
+    const open = block.classList.toggle('open');
+    if (open) openFamilies.add(fam.id); else openFamilies.delete(fam.id);
+    store.set('ot.openFamilies', [...openFamilies]);
+  };
+
+  const body = document.createElement('div');
+  body.className = 'family-body';
+  for (const l of famLines) body.appendChild(repItem(l));
+
+  block.appendChild(head);
+  block.appendChild(body);
+  return block;
+}
+
+function repItem(l) {
+  const now = Date.now();
+  const st = getStats(l.id);
+  const item = document.createElement('div');
+  item.className = 'rep-item' + (l.custom ? ' custom' : '');
+  const dueTxt = !st.last ? 'never practiced'
+    : st.due <= now ? 'due now' : 'due ' + new Date(st.due).toLocaleDateString();
+  item.innerHTML = `
       <span class="chip${l.side === 'black' ? ' black-side' : ''}">${l.side}</span>
       <div class="nm"><b>${l.name}</b><span>${l.eco || ''} \u00B7 ${l.moves.length} plies \u00B7 ${st.runs} run${st.runs === 1 ? '' : 's'} \u00B7 streak ${st.streak}</span></div>
       <span class="due${st.due <= now && st.last ? ' overdue' : ''}">${dueTxt}</span>`;
-    const play = document.createElement('button');
-    play.className = 'btn small primary';
-    play.textContent = 'Practice';
-    play.onclick = () => { startLine(l); showTab('practice'); };
-    item.appendChild(play);
-    if (l.custom) {
-      const del = document.createElement('button');
-      del.className = 'btn small danger';
-      del.textContent = '\u2715';
-      del.title = 'Delete line';
-      del.onclick = () => {
-        if (!confirm('Delete "' + l.name + '"?')) return;
-        customLines = customLines.filter(c => c.id !== l.id);
-        persist();
-        renderRepertoire();
-      };
-      item.appendChild(del);
-    }
-    box.appendChild(item);
+  const play = document.createElement('button');
+  play.className = 'btn small primary';
+  play.textContent = 'Practice';
+  play.onclick = () => { startLine(l); showTab('practice'); };
+  item.appendChild(play);
+  if (l.custom) {
+    const del = document.createElement('button');
+    del.className = 'btn small danger';
+    del.textContent = '\u2715';
+    del.title = 'Delete line';
+    del.onclick = () => {
+      if (!confirm('Delete "' + l.name + '"?')) return;
+      customLines = customLines.filter(c => c.id !== l.id);
+      persist();
+      renderRepertoire();
+    };
+    item.appendChild(del);
   }
+  return item;
 }
 
 document.querySelectorAll('#rep-filter .btn').forEach(b => {
@@ -499,6 +543,7 @@ $('btn-import').onclick = () => {
         name: name.slice(0, 80),
         side, eco, moves,
         tips: {},
+        family: 'imported',
         custom: true
       });
       imported++;
@@ -538,6 +583,7 @@ $('file-import').onchange = (e) => {
             eco: String(l.eco || ''),
             moves: l.moves.map(String),
             tips: l.tips || {},
+            family: 'imported',
             custom: true
           });
           n++;
@@ -736,12 +782,11 @@ document.addEventListener('keydown', (e) => {
   if (k === 'h') $('btn-hint').click();
   if (k === 's') $('btn-show').click();
   if (k === 'r') $('btn-retry').click();
-  if (k === 'n') nextDueLine();
   if (k === 'f') { boardPr.flip(); boardFp.flip(); }
 });
 
 /* ---------------- boot ---------------- */
 
+boardPr.setPosition(new Chess()); // show the starting position while idle
 renderRepertoire();
 renderStats();
-if (allLines().length) nextDueLine();

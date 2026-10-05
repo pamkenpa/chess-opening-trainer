@@ -3,6 +3,7 @@
 export const BUILTIN_LINES = [
   {
     id: 'w-italian-pianissimo',
+    family: 'italian',
     name: 'Italian Game — Giuoco Pianissimo',
     side: 'white',
     eco: 'C50',
@@ -18,6 +19,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-italian-two-knights',
+    family: 'italian',
     name: 'Italian — Two Knights, 4.d3',
     side: 'white',
     eco: 'C55',
@@ -29,6 +31,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-closed',
+    family: 'ruy',
     name: 'Ruy Lopez — Closed Main Line',
     side: 'white',
     eco: 'C84',
@@ -44,6 +47,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-berlin',
+    family: 'ruy',
     name: 'Ruy Lopez — Berlin Defence',
     side: 'white',
     eco: 'C65',
@@ -57,6 +61,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-exchange',
+    family: 'ruy',
     name: 'Ruy Lopez — Exchange Variation',
     side: 'white',
     eco: 'C68',
@@ -70,6 +75,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-marshall',
+    family: 'ruy',
     name: 'Ruy Lopez — Marshall Attack',
     side: 'white',
     eco: 'C89',
@@ -87,6 +93,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-breyer',
+    family: 'ruy',
     name: 'Ruy Lopez — Breyer Variation',
     side: 'white',
     eco: 'C90',
@@ -102,6 +109,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-ruy-schliemann',
+    family: 'ruy',
     name: 'Ruy Lopez — Schliemann Defence',
     side: 'white',
     eco: 'C63',
@@ -119,6 +127,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-qgd-exchange',
+    family: 'qgd',
     name: 'Queen\u2019s Gambit Declined — Exchange',
     side: 'white',
     eco: 'D35',
@@ -133,6 +142,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'w-london',
+    family: 'london',
     name: 'London System',
     side: 'white',
     eco: 'D02',
@@ -147,6 +157,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-caro-classical',
+    family: 'caro',
     name: 'Caro-Kann — Classical',
     side: 'black',
     eco: 'B18',
@@ -161,6 +172,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-najdorf',
+    family: 'najdorf',
     name: 'Sicilian Najdorf — English Attack',
     side: 'black',
     eco: 'B90',
@@ -174,6 +186,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-slav',
+    family: 'slav',
     name: 'Slav Defence — Main Line',
     side: 'black',
     eco: 'D15',
@@ -187,6 +200,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-berlin',
+    family: 'ruy',
     name: 'Ruy Lopez — Berlin Defence',
     side: 'black',
     eco: 'C65',
@@ -200,6 +214,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-qgd-orthodox',
+    family: 'qgd',
     name: 'QGD — Orthodox Setup (as Black)',
     side: 'black',
     eco: 'D35',
@@ -211,5 +226,116 @@ export const BUILTIN_LINES = [
       11: 'h6 gains a tempo and pushes the bishop to h4.',
       17: 'Recapture with the queen and your rooks connect.'
     }
+  },
+  {
+    id: 'w-scotch',
+    name: 'Scotch Game — Main Line',
+    side: 'white',
+    family: 'kings-pawn',
+    eco: 'C45',
+    moves: ['e4', 'e5', 'Nf3', 'Nc6', 'd4', 'exd4', 'Nxd4', 'Nf6', 'Nxc6', 'bxc6', 'e5', 'Qe7', 'Qe2', 'Nd5', 'c4', 'Nb6'],
+    tips: {
+      4: 'The Scotch strike: open the centre before Black is fully set up.',
+      6: 'Recapture toward the middle — the d4-knight is a strong post.',
+      8: 'Trade on c6: opening lines matters more than the bishop pair here.',
+      10: 'e5 drives the f6-knight and buys real space.',
+      12: 'The queen defends e5 and eyes the kingside.',
+      14: 'Kick the knight off its beautiful d5-square.'
+    }
+  },
+  {
+    id: 'w-four-knights',
+    name: 'Four Knights Game — Spanish Variation',
+    side: 'white',
+    family: 'kings-pawn',
+    eco: 'C49',
+    moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Nc3', 'Nf6', 'Bb5', 'Bb4', 'O-O', 'O-O', 'd3', 'Bxc3', 'bxc3', 'd6', 'Bg5'],
+    tips: {
+      6: 'The Spanish pin — the Four Knights’ most testing line.',
+      8: 'Castle into the symmetrical position; be the first to break it.',
+      10: 'd3 keeps everything solid and frees the bishop.',
+      12: 'Recapture with the pawn — doubled but with a half-open b-file.',
+      14: 'Pin the knight and dare Black to loosen the kingside.'
+    }
+  },
+  {
+    id: 'w-kings-gambit',
+    name: 'King’s Gambit — Main Line',
+    side: 'white',
+    family: 'kings-pawn',
+    eco: 'C33',
+    moves: ['e4', 'e5', 'f4', 'exf4', 'Nf3', 'g5', 'h4', 'g4', 'Ne5', 'Nf6', 'Bc4', 'd5', 'exd5', 'Nxd5', 'O-O'],
+    tips: {
+      2: 'The romantic gambit: a pawn for the centre and open lines.',
+      4: 'Develop with tempo — the knight eyes the f4-pawn.',
+      6: 'h4 provokes …g4, diverting the pawn from the kingside.',
+      8: 'The knight centralizes before taking back on f4.',
+      10: 'The bishop aims at f7 — the classic King’s Gambit idea.',
+      12: 'Open the centre while Black’s king is stuck in the middle.',
+      14: 'Castle up despite the pawn deficit — your pieces sing, Black’s do not.'
+    }
+  },
+  {
+    id: 'w-vienna',
+    name: 'Vienna Game — Gambit Line',
+    side: 'white',
+    family: 'kings-pawn',
+    eco: 'C29',
+    moves: ['e4', 'e5', 'Nc3', 'Nf6', 'f4', 'd5', 'fxe5', 'Nxe4', 'Nf3', 'Be7', 'd4', 'O-O'],
+    tips: {
+      2: 'Flexible development that can explode into f4 at any moment.',
+      4: 'The Vienna Gambit: a pawn for a huge central build-up.',
+      6: 'Take first — the recapture on e5 comes with tempo.',
+      8: 'Nf3 develops, defends, and prepares to castle.',
+      10: 'Slam d4 down: pawns on d4 and e5 strangle Black.'
+    }
+  },
+  {
+    id: 'w-bishops-opening',
+    name: 'Bishop’s Opening — Main Line',
+    side: 'white',
+    family: 'kings-pawn',
+    eco: 'C27',
+    moves: ['e4', 'e5', 'Bc4', 'Bc5', 'c3', 'Nf6', 'd4', 'exd4', 'cxd4', 'Bb4+', 'Bd2', 'Bxd2+', 'Nxd2'],
+    tips: {
+      2: 'The oldest gambit line: bishop first, centre second.',
+      4: 'Prepare d4 — the pawn duo is the whole plan.',
+      6: 'Strike the centre.',
+      8: 'Recapture with tempo — the d-pawn hits the c5-bishop.',
+      10: 'Block the check and offer the bishop trade.',
+      12: 'Recapture with the knight — the d4-pawn is strong and safe.'
+    }
+  },
+  {
+    id: 'b-petrov',
+    name: 'Petrov’s Defence — Russian Game',
+    side: 'black',
+    family: 'kings-pawn',
+    eco: 'C42',
+    moves: ['e4', 'e5', 'Nf3', 'Nf6', 'Nxe5', 'd6', 'Nf3', 'Nxe4', 'd4', 'd5', 'Bd3', 'Bd6', 'O-O', 'O-O', 'c4', 'c6'],
+    tips: {
+      1: 'Counterattack the e5-pawn immediately — no need to defend passively.',
+      5: 'd6 kicks the knight and underpins the centre.',
+      7: 'Win the e4-pawn: the Petrov’s main idea.',
+      9: 'Consolidate before grabbing more — d5 locks the position in your favour.',
+      11: 'The bishop settles on its perfect diagonal.',
+      15: 'c6 blunts the bishop and completes the fortress.'
+    }
+  },
+  {
+    id: 'b-philidor',
+    name: 'Philidor Defence — Hanham Setup',
+    side: 'black',
+    family: 'kings-pawn',
+    eco: 'C41',
+    moves: ['e4', 'e5', 'Nf3', 'd6', 'd4', 'exd4', 'Nxd4', 'Nf6', 'Nc3', 'Be7', 'Bc4', 'O-O', 'O-O'],
+    tips: {
+      3: 'Solid as a rock: d6 supports e5 and frees the bishop.',
+      5: 'Trade before White builds a full centre.',
+      7: 'The knight attacks d4 and readies …Be7.',
+      9: 'Unwind the f8-bishop before committing.',
+      11: 'Castle into the Hanham setup — famously hard to crack.'
+    }
   }
 ];
+

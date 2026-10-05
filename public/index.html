@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Opening Trainer</title>
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body data-theme="wood">
 
@@ -47,7 +47,7 @@
 
       <div class="card coach">
         <div class="coach-head">Coach</div>
-        <div id="coach-msg" class="coach-msg">Welcome! Your training partner (Stockfish 16) is the opponent; play your repertoire moves and the coach keeps you honest.</div>
+        <div id="coach-msg" class="coach-msg">Welcome! Open the Repertoire tab, pick a family and hit Practice — the coach keeps you honest.</div>
         <div id="coach-actions" class="coach-actions"></div>
       </div>
 
@@ -61,7 +61,6 @@
         <button id="btn-hint" class="btn" title="Show the square the piece starts on (H)">Hint</button>
         <button id="btn-show" class="btn" title="Play the book move for me (S)">Show move</button>
         <button id="btn-retry" class="btn" title="Restart this line (R)">Retry</button>
-        <button id="btn-nextdue" class="btn primary" title="Practice the next due line (N)">Next due</button>
       </div>
     </div>
   </section>
@@ -71,6 +70,7 @@
     <div class="rep-layout">
       <div class="card rep-list">
         <h2>Your repertoire</h2>
+        <p class="muted small">Click a family to expand its variations.</p>
         <div id="rep-filter" class="filter-row">
           <button class="btn small active" data-filter="all">All</button>
           <button class="btn small" data-filter="white">White</button>
@@ -185,6 +185,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script type="module" src="js/app.js?v=5"></script>
+<script type="module" src="js/app.js?v=6"></script>
 </body>
 </html>

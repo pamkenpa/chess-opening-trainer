@@ -199,9 +199,25 @@ body.nocoords .coord { display: none; }
 @media (max-width: 900px) { .rep-layout { grid-template-columns: 1fr; } }
 .filter-row { display: flex; gap: 6px; margin-bottom: 10px; }
 #rep-table { display: flex; flex-direction: column; gap: 8px; }
+
+.family { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); overflow: hidden; }
+.family-head {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  background: none; border: none; color: var(--text);
+  padding: 12px 14px; cursor: pointer; font: inherit; text-align: left;
+}
+.family-head:hover { background: rgba(255,255,255,.04); }
+.family-head .caret { transition: transform .15s; color: var(--muted); font-size: 12px; }
+.family.open .caret { transform: rotate(90deg); }
+.family-name { font-weight: 600; flex: 1; }
+.family-count { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.due-badge { background: var(--warn); color: #222; border-radius: 12px; font-size: 11px; font-weight: 700; padding: 2px 8px; white-space: nowrap; }
+.family-body { display: none; padding: 2px 8px 8px; flex-direction: column; gap: 8px; }
+.family.open .family-body { display: flex; }
+
 .rep-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
 }
 .rep-item .nm { flex: 1; }
 .rep-item .nm b { display: block; font-size: 14px; }
