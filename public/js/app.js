@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=17';
-import { BUILTIN_LINES } from './lines.js?v=17';
-import { Board } from './board.js?v=17';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=17';
-import { sfx, setSound } from './sound.js?v=17';
-import { classify } from './openings.js?v=17';
+import { Chess } from '../vendor/chess.esm.js?v=18';
+import { BUILTIN_LINES } from './lines.js?v=18';
+import { Board } from './board.js?v=18';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=18';
+import { sfx, setSound } from './sound.js?v=18';
+import { classify } from './openings.js?v=18';
 
 /* ---------------- storage ---------------- */
 
@@ -472,6 +472,7 @@ const FAMILIES = [
   { id: 'qgd', name: 'Queen\u2019s Gambit Declined' },
   { id: 'london', name: 'London System' },
   { id: 'caro', name: 'Caro-Kann Defence' },
+  { id: 'french', name: 'French Defence' },
   { id: 'sicilian', name: 'Sicilian Defence' },
   { id: 'slav', name: 'Slav Defence' },
   { id: 'imported', name: 'Imported & Custom' }
@@ -884,7 +885,7 @@ $('mode-practice').onclick = () => setSessionMode('practice');
 
 /* ---------------- version self-update ---------------- */
 
-const APP_BUILD = 17;
+const APP_BUILD = 18;
 async function checkForUpdate() {
   try {
     const r = await fetch('version.json?cb=' + Date.now(), { cache: 'no-store' });

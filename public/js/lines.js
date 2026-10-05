@@ -594,5 +594,103 @@ export const BUILTIN_LINES = [
       'Castle into the Hanham setup — famously hard to crack.',
       'White castles too; solid, balanced play ahead.'
     ]
+  },
+  {
+    id: 'b-french-winawer',
+    name: 'French Defence — Winawer, Poisoned Pawn',
+    side: 'black',
+    family: 'french',
+    eco: 'C18',
+    moves: ['e4', 'e6', 'd4', 'd5', 'Nc3', 'Bb4', 'e5', 'c5', 'a3', 'Bxc3+', 'bxc3', 'Ne7', 'Qg4', 'Qc7', 'Qxg7', 'Rg8', 'Qxh7', 'cxd4', 'Ne2'],
+    tips: [
+      'Take the centre — the classical start.',
+      'The French: solid, with the light-squared bishop as the star.',
+      'White builds the ideal pawn duo.',
+      'The defining French challenge.',
+      'Defends e4 and pressures d5.',
+      'The Winawer: pin the knight and force White to decide.',
+      'e5 gains space and asks the bishop to commit.',
+      'c5 strikes at the White base right away.',
+      'a3 forces the bishop to choose: retreat or trade.',
+      'The trade defines the Winawer — White gets doubled c-pawns.',
+      'Recapture: the doubled pawn also opens the b-file for you.',
+      'The main retreat — f6 would hang to the e5-pawn.',
+      'Qg4 attacks g7 — the famous pawn-grab begins.',
+      'Defends g7 and eyes the queenside.',
+      'White takes the bait — the g7-pawn falls.',
+      'Chases the queen — the rook comes alive.',
+      'The second pawn falls, but your initiative is worth more.',
+      'Open the centre — all your pieces are awake.',
+      'Ne2 develops calmly — the Poisoned Pawn tabiya is reached.'
+    ]
+  },
+  {
+    id: 'b-french-classical',
+    name: 'French Defence — Classical',
+    side: 'black',
+    family: 'french',
+    eco: 'C11',
+    moves: ['e4', 'e6', 'd4', 'd5', 'Nc3', 'Nf6', 'e5', 'Nfd7', 'f4', 'c5', 'Nf3', 'Nc6', 'Be3'],
+    tips: [
+      'Take the centre — the classical start.',
+      'The French: challenge e4 with ...d5 next.',
+      'White builds the pawn duo.',
+      'The defining central challenge.',
+      'Develops toward the centre.',
+      'Develops and attacks e4.',
+      'e5 gains space and pushes the knight back.',
+      'Nfd7 regroups and supports the ...c5 strike.',
+      'f4 cements e5 — the Classical signature space grab.',
+      'c5 undermines the White centre immediately.',
+      'Develops and adds a defender to d4.',
+      'Nc6 piles on the d4-pawn.',
+      'Be3 defends d4 — the classical standoff begins.'
+    ]
+  },
+  {
+    id: 'b-french-advance',
+    name: 'French Defence — Advance Variation',
+    side: 'black',
+    family: 'french',
+    eco: 'C02',
+    moves: ['e4', 'e6', 'd4', 'd5', 'e5', 'c5', 'c3', 'Nc6', 'Nf3', 'Bd7', 'Be2', 'Nge7'],
+    tips: [
+      'Take the centre.',
+      'The French — Black meets the centre head-on.',
+      'The pawn duo forms.',
+      'The challenge.',
+      'The Advance Variation: White locks the centre.',
+      'c5 is the thematic strike against the White base.',
+      'c3 supports d4 — the chain c3-d4-e5 is set.',
+      'Nc6 attacks the base of the chain.',
+      'Develops and defends the chain.',
+      'Frees the problem light bishop’s path.',
+      'Be2 develops quietly — expect ...cxd4 and ...Qb6 counterplay.',
+      'Nge7 regroups — the knight is headed for f5, a dream square.'
+    ]
+  },
+  {
+    id: 'b-french-tarrasch',
+    name: 'French Defence — Tarrasch Variation',
+    side: 'black',
+    family: 'french',
+    eco: 'C03',
+    moves: ['e4', 'e6', 'd4', 'd5', 'Nd2', 'Nf6', 'e5', 'Nfd7', 'f4', 'c5', 'c3', 'Nc6', 'Ndf3'],
+    tips: [
+      'Take the centre.',
+      'The French.',
+      'White builds the pawn duo.',
+      'The challenge.',
+      'Nd2 keeps the e2-square free for the bishop.',
+      'Develops and attacks e4.',
+      'e5 pushes the knight — space for White.',
+      'The knight reroutes, supporting ...c5.',
+      'f4 cements e5.',
+      'c5 strikes the chain immediately.',
+      'c3 reinforces d4.',
+      'Nc6 triples the pressure on d4.',
+      'Ndf3 defends d4 and keeps the structure flexible.'
+    ]
   }
 ];
+
