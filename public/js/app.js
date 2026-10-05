@@ -1,8 +1,8 @@
-import { Chess } from '../vendor/chess.esm.js?v=6';
-import { BUILTIN_LINES } from './lines.js?v=6';
-import { Board } from './board.js?v=6';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=6';
-import { sfx, setSound } from './sound.js?v=6';
+import { Chess } from '../vendor/chess.esm.js?v=7';
+import { BUILTIN_LINES } from './lines.js?v=7';
+import { Board } from './board.js?v=7';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=7';
+import { sfx, setSound } from './sound.js?v=7';
 
 /* ---------------- storage ---------------- */
 
@@ -122,7 +122,7 @@ const practice = {
 };
 
 const boardPr = new Board($('board-practice'), {
-  canPick: () => practice.phase === 'user',
+  canPick: (sq) => practice.phase === 'user' && practice.game && practice.game.get(sq)?.color === (practice.line && practice.line.side === 'black' ? 'b' : 'w'),
   legalTargets: (from) => {
     if (!practice.game) return [];
     return practice.game.moves({ square: from, verbose: true }).map(m => ({ to: m.to, promotion: m.promotion }));

@@ -148,6 +148,18 @@ export class Board {
   _pointerDown(e, name) {
     if (e.button !== undefined && e.button !== 0) return;
     const piece = this._pieceMap && this._pieceMap[name];
+
+    // completing a selected move takes priority (targets may hold enemy pieces)
+    if (this.selected && this.selected !== name) {
+      const targets = this.legalTargets(this.selected).filter(m => m.to === name);
+      if (targets.length) {
+        const from = this.selected;
+        this._deselect();
+        this._maybePromote(from, name, targets);
+        return;
+      }
+    }
+
     if (piece && this.canPick(name)) {
       this.onPremoveTouch();
       const targets = this.legalTargets(name);
@@ -155,14 +167,7 @@ export class Board {
       this._select(name);
       this._startDrag(e, name, piece, targets);
     } else if (this.selected) {
-      const targets = this.legalTargets(this.selected).filter(m => m.to === name);
-      if (targets.length) {
-        const from = this.selected;
-        this._deselect();
-        this._maybePromote(from, name, targets);
-      } else {
-        this._deselect();
-      }
+      this._deselect();
     }
   }
 
