@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=8';
-import { BUILTIN_LINES } from './lines.js?v=8';
-import { Board } from './board.js?v=8';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=8';
-import { sfx, setSound } from './sound.js?v=8';
-import { classify } from './openings.js?v=8';
+import { Chess } from '../vendor/chess.esm.js?v=9';
+import { BUILTIN_LINES } from './lines.js?v=9';
+import { Board } from './board.js?v=9';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=9';
+import { sfx, setSound } from './sound.js?v=9';
+import { classify } from './openings.js?v=9';
 
 /* ---------------- storage ---------------- */
 
@@ -567,10 +567,10 @@ $('btn-import').onclick = () => {
   persist();
   store.set('ot.customFamilies', customFamilies);
   renderRepertoire();
-  if (made) {
-    msg.innerHTML = results.map(r => r).join('<br>') + (skipped ? '<br>' + skipped + ' skipped.' : '');
-    msg.className = 'small ok';
-    $('pgn-input').value = '';
+  if (results.length) {
+    msg.innerHTML = results.map(r => r).join('<br>');
+    msg.className = 'small ' + (made ? 'ok' : 'err');
+    if (made) $('pgn-input').value = '';
   } else {
     msg.textContent = 'No valid openings found (4+ legal moves each).';
     msg.className = 'small err';
