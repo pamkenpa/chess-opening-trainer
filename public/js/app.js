@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=18';
-import { BUILTIN_LINES } from './lines.js?v=18';
-import { Board } from './board.js?v=18';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=18';
-import { sfx, setSound } from './sound.js?v=18';
-import { classify } from './openings.js?v=18';
+import { Chess } from '../vendor/chess.esm.js?v=19';
+import { BUILTIN_LINES } from './lines.js?v=19';
+import { Board } from './board.js?v=19';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=19';
+import { sfx, setSound } from './sound.js?v=19';
+import { classify } from './openings.js?v=19';
 
 /* ---------------- storage ---------------- */
 
@@ -885,7 +885,7 @@ $('mode-practice').onclick = () => setSessionMode('practice');
 
 /* ---------------- version self-update ---------------- */
 
-const APP_BUILD = 18;
+const APP_BUILD = 19;
 async function checkForUpdate() {
   try {
     const r = await fetch('version.json?cb=' + Date.now(), { cache: 'no-store' });

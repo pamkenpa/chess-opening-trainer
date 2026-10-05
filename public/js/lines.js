@@ -691,6 +691,152 @@ export const BUILTIN_LINES = [
       'Nc6 triples the pressure on d4.',
       'Ndf3 defends d4 and keeps the structure flexible.'
     ]
+  },
+  {
+    id: 'b-dragon',
+    name: 'Sicilian Dragon — Yugoslav Attack',
+    side: 'black',
+    family: 'sicilian',
+    eco: 'B70',
+    moves: ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'g6', 'Be3', 'Bg7', 'f3', 'O-O', 'Qd2', 'Nc6'],
+    tips: [
+      'Take the centre — the classical start.',
+      'The Sicilian: fight for the centre with the c-pawn.',
+      'Develops toward the centre.',
+      'd6 is flexible and frees the f8-bishop.',
+      'The big centre — White\u2019s prize.',
+      'Trade: open the c-file for your pieces.',
+      'The strong knight settles on d4.',
+      'Develops and attacks the d4-knight.',
+      'Develops and covers d5.',
+      'The Dragon fianchetto: the bishop stares across the whole board.',
+      'The Yugoslav Attack begins \u2014 Be3 readies Qd2 and O-O-O.',
+      'The dragon lands on g7, biting on the long diagonal.',
+      'f3 solidifies e4 and prepares White\u2019s queenside castle.',
+      'Black castles \u2014 the dragon is set; brace for the pawn storm.',
+      'Qd2 connects the rooks for O-O-O.',
+      'Develops and keeps the central tension.'
+    ]
+  },
+  {
+    id: 'b-sveshnikov',
+    name: 'Sveshnikov Sicilian',
+    side: 'black',
+    family: 'sicilian',
+    eco: 'B33',
+    moves: ['e4', 'c5', 'Nf3', 'Nc6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'e5', 'Ndb5', 'd6', 'Bg5', 'a6', 'Na3', 'b5'],
+    tips: [
+      'Take the centre \u2014 the classical start.',
+      'The Sicilian \u2014 Black\u2019s most combative weapon.',
+      'Develops toward the centre.',
+      'Develops naturally.',
+      'The Open Sicilian strike.',
+      'Trade in the centre.',
+      'The knight heads for its strong square.',
+      'Develops and attacks the d4-knight.',
+      'Develops and covers d5.',
+      'The Sveshnikov point: e5 kicks the knight and grabs space.',
+      'The knight leaps toward the d6-outpost.',
+      'd6 supports e5 \u2014 the pawn is the pride of Black\u2019s position.',
+      'Bg5 pins toward the knight \u2014 the main-line pressure.',
+      'a6 hits the knight.',
+      'Steps back \u2014 the b5-knight has done its job.',
+      'b5 kicks the knight and seizes queenside space.'
+    ]
+  },
+  {
+    id: 'b-taimanov',
+    name: 'Taimanov Sicilian',
+    side: 'black',
+    family: 'sicilian',
+    eco: 'B45',
+    moves: ['e4', 'c5', 'Nf3', 'e6', 'd4', 'cxd4', 'Nxd4', 'Nc6', 'Nc3', 'Qc7', 'Be2', 'a6', 'O-O'],
+    tips: [
+      'Take the centre \u2014 the classical start.',
+      'The Sicilian.',
+      'Develops toward the centre.',
+      'The Taimanov: flexible ...e6 keeps every option open.',
+      'The open strike.',
+      'Trade in the centre.',
+      'The strong knight on d4.',
+      'Develops and attacks the d4-knight.',
+      'Develops and defends d4.',
+      'The active Taimanov queen \u2014 eyeing c3 and supporting ...a6.',
+      'Be2 develops and prepares O-O.',
+      'a6 stops Bb5 ideas and readies ...b5.',
+      'O-O completes development \u2014 Black is comfortably set.'
+    ]
+  },
+  {
+    id: 'w-sicilian-najdorf',
+    name: 'Sicilian — Najdorf (as White)',
+    side: 'white',
+    family: 'sicilian',
+    eco: 'B90',
+    moves: ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'a6', 'Be3', 'e5', 'Nb3', 'Be7', 'f3', 'O-O', 'Qd2', 'Nbd7'],
+    tips: [
+      'Take the centre \u2014 the classical start.',
+      'The Sicilian: Black\u2019s most combative weapon.',
+      'Develops toward the centre.',
+      'Black commits to a small centre \u2014 the Najdorf structure appears.',
+      'The Open Sicilian strike \u2014 open the centre.',
+      'Trade: open lines for your pieces.',
+      'The strong knight on d4.',
+      'Develops and attacks the d4-knight.',
+      'Develops and covers d5.',
+      'a6 prepares ...e5 and stops your Bb5 pin.',
+      'The English Attack: Be3, f3, Qd2, O-O-O and g4 to come.',
+      'Black grabs space \u2014 your knight must move.',
+      'Nb3 keeps the knight flexible and eyes a5/c5.',
+      'The bishop unwinds for ...O-O.',
+      'f3 stops ...Ng4 and opens your king for O-O-O.',
+      'Black castles \u2014 the race is on.',
+      'Qd2 connects the rooks \u2014 O-O-O and g4 next.',
+      'Black develops; the Yugoslav Attack is fully set.'
+    ]
+  },
+  {
+    id: 'w-alapin',
+    name: 'Sicilian — Alapin Variation',
+    side: 'white',
+    family: 'sicilian',
+    eco: 'B22',
+    moves: ['e4', 'c5', 'c3', 'Nf6', 'e5', 'Nd5', 'd4', 'cxd4', 'Nf3', 'Nc6', 'cxd4', 'd6'],
+    tips: [
+      'Take the centre \u2014 the classical start.',
+      'The Sicilian.',
+      'The Alapin: c3 builds a centre before Black settles in.',
+      'Develops and attacks e4.',
+      'e5 kicks the knight and claims the centre.',
+      'The knight occupies a fine d5-outpost.',
+      'd4 \u2014 the ideal pawn duo appears.',
+      'Black trades to blunt the centre.',
+      'Develops and recaptures next move.',
+      'Nc6 pressures d4.',
+      'Recapture toward the centre \u2014 the d4-pawn is strong.',
+      'd6 frees the light bishop and keeps the d5-knight supported.'
+    ]
+  },
+  {
+    id: 'w-rossolimo',
+    name: 'Sicilian — Rossolimo Variation',
+    side: 'white',
+    family: 'sicilian',
+    eco: 'B30',
+    moves: ['e4', 'c5', 'Nf3', 'Nc6', 'Bb5', 'g6', 'O-O', 'Bg7', 'c3', 'Nf6', 'd4'],
+    tips: [
+      'Take the centre \u2014 the classical start.',
+      'The Sicilian.',
+      'Develops toward the centre.',
+      'Defends e5.',
+      'The Rossolimo: pressure the knight that holds e5.',
+      'g6 fianchettoes to blunt the bishop.',
+      'Castle \u2014 quick and safe.',
+      'The dragon bishop appears.',
+      'c3 prepares d4 \u2014 the classical centre comes next.',
+      'Develops and attacks e4.',
+      'd4 \u2014 the full centre; White has a comfortable edge.'
+    ]
   }
 ];
 
