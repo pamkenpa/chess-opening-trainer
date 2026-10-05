@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=16';
-import { BUILTIN_LINES } from './lines.js?v=16';
-import { Board } from './board.js?v=16';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=16';
-import { sfx, setSound } from './sound.js?v=16';
-import { classify } from './openings.js?v=16';
+import { Chess } from '../vendor/chess.esm.js?v=17';
+import { BUILTIN_LINES } from './lines.js?v=17';
+import { Board } from './board.js?v=17';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=17';
+import { sfx, setSound } from './sound.js?v=17';
+import { classify } from './openings.js?v=17';
 
 /* ---------------- storage ---------------- */
 
@@ -358,10 +358,12 @@ function acceptAlternative(deviation, msg) {
 function botMove() {
   practice.phase = 'bot';
   renderPractice();
-  setTimeout(() => playBotMoveNow(), 380 + Math.random() * 320);
+  clearTimeout(practice._botTimer);
+  practice._botTimer = setTimeout(() => playBotMoveNow(), 380 + Math.random() * 320);
 }
 
 function playBotMoveNow() {
+  clearTimeout(practice._botTimer);
   const { line, game, ply } = practice;
   if (!practice.line || practice.game !== game || (practice.phase !== 'bot' && practice.phase !== 'wait')) return;
   const mv = game.move(line.moves[ply]);
@@ -382,22 +384,25 @@ function playBotMoveNow() {
 function prevMove() {
   if (!practice.line || practice.phase === 'deviation' || !practice.rendered.length) return;
   boardPr.stopPulse();
-  const undoOnce = () => {
-    practice.game.undo();
-    practice.rendered.pop();
-    practice.ply--;
-  };
-  undoOnce();
-  while (practice.ply > 0 && isBotPly(practice.line, practice.ply)) undoOnce();
+  practice.game.undo();
+  practice.rendered.pop();
+  practice.ply--;
   practice.deviation = null;
-  if (isBotPly(practice.line, practice.ply)) {
-    botMove(); // rewound to the very start of a Black line
-  } else {
-    practice.phase = 'user';
+  const botToMove = isBotPly(practice.line, practice.ply);
+  if (practice.mode === 'learn') {
+    // the move simply waits: press > to replay it
+    practice.phase = botToMove ? 'wait' : 'user';
     renderPractice();
-    coach('Stepped back \u2014 your move again.', 'info');
+    if (botToMove) coach('Stepped back \u2014 press \u25B6 to see the reply again.', 'info');
+    else coach('Stepped back \u2014 your move again.', 'info');
     coachActions([]);
+    return;
   }
+  if (botToMove) { botMove(); return; } // practice mode: the reply comes back on its own
+  practice.phase = 'user';
+  renderPractice();
+  coach('Stepped back \u2014 your move again.', 'info');
+  coachActions([]);
 }
 
 // ">" \u2014 play the next book move (for whoever is to move)
@@ -879,7 +884,7 @@ $('mode-practice').onclick = () => setSessionMode('practice');
 
 /* ---------------- version self-update ---------------- */
 
-const APP_BUILD = 16;
+const APP_BUILD = 17;
 async function checkForUpdate() {
   try {
     const r = await fetch('version.json?cb=' + Date.now(), { cache: 'no-store' });
