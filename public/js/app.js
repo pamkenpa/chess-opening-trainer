@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=10';
-import { BUILTIN_LINES } from './lines.js?v=10';
-import { Board } from './board.js?v=10';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=10';
-import { sfx, setSound } from './sound.js?v=10';
-import { classify } from './openings.js?v=10';
+import { Chess } from '../vendor/chess.esm.js?v=11';
+import { BUILTIN_LINES } from './lines.js?v=11';
+import { Board } from './board.js?v=11';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=11';
+import { sfx, setSound } from './sound.js?v=11';
+import { classify } from './openings.js?v=11';
 
 /* ---------------- storage ---------------- */
 
@@ -544,7 +544,6 @@ $('btn-import').onclick = () => {
       const id = classify(moves);
       const key = moves.join(' ');
       if (allLines().some(l => l.moves.join(' ') === key)) { skipped++; results.push('\u26A0 already in your repertoire: ' + key.split(' ').slice(0, 6).join(' ') + '\u2026'); continue; }
-      const tag = (name) => (chunk.match(new RegExp('\\[' + name + '\\s+"([^"]*)"')) || [])[1] || '';
       const name = tag('Opening') || (id ? id.name : '') || tag('Event') || 'Generated ' + moves.slice(0, 6).join(' ');
       const eco = tag('ECO') || (id ? id.eco : '');
       let family = id ? id.family : 'imported';
