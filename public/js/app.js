@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=13';
-import { BUILTIN_LINES } from './lines.js?v=13';
-import { Board } from './board.js?v=13';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=13';
-import { sfx, setSound } from './sound.js?v=13';
-import { classify } from './openings.js?v=13';
+import { Chess } from '../vendor/chess.esm.js?v=14';
+import { BUILTIN_LINES } from './lines.js?v=14';
+import { Board } from './board.js?v=14';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=14';
+import { sfx, setSound } from './sound.js?v=14';
+import { classify } from './openings.js?v=14';
 
 /* ---------------- storage ---------------- */
 
@@ -259,7 +259,6 @@ function retryAfterDeviation() {
 function showBookMove() {
   const { line, game, ply } = practice;
   practice.deviation = null;
-  practice.misses++;
   practice.usedShow = true;
   const played = line.moves[ply];
   const mv = game.move(played);
