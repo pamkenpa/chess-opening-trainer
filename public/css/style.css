@@ -152,6 +152,10 @@ body.nocoords .coord { display: none; }
 /* ---------- practice cards ---------- */
 .line-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .line-head h2 { margin: 0; }
+.mode-toggle { display: inline-flex; margin-left: auto; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.mode-toggle button { background: none; border: none; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.mode-toggle button:hover { color: var(--text); }
+.mode-toggle button.active { background: var(--accent-dark); color: #fff; }
 .chip {
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
   padding: 3px 9px; border-radius: 20px; background: var(--accent-dark); color: #fff;

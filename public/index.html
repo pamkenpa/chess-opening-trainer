@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Opening Trainer</title>
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body data-theme="wood">
 
@@ -40,6 +40,10 @@
           <span id="pr-line-side" class="chip"></span>
           <h2 id="pr-line-name">No line selected</h2>
           <span id="pr-line-eco" class="eco"></span>
+          <div class="mode-toggle">
+            <button id="mode-learn" title="Step through with explanations - the opponent waits for you">Learn</button>
+            <button id="mode-practice" title="Test yourself: automatic replies, no explanations">Practice</button>
+          </div>
         </div>
         <div id="pr-progress" class="progress"><div class="progress-fill"></div></div>
         <div id="pr-movecount" class="muted small">Pick a line from the Repertoire tab.</div>
@@ -186,6 +190,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script type="module" src="js/app.js?v=14"></script>
+<script type="module" src="js/app.js?v=15"></script>
 </body>
 </html>

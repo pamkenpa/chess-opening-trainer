@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=14';
-import { BUILTIN_LINES } from './lines.js?v=14';
-import { Board } from './board.js?v=14';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=14';
-import { sfx, setSound } from './sound.js?v=14';
-import { classify } from './openings.js?v=14';
+import { Chess } from '../vendor/chess.esm.js?v=15';
+import { BUILTIN_LINES } from './lines.js?v=15';
+import { Board } from './board.js?v=15';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=15';
+import { sfx, setSound } from './sound.js?v=15';
+import { classify } from './openings.js?v=15';
 
 /* ---------------- storage ---------------- */
 
@@ -18,7 +18,7 @@ const store = {
 };
 
 let settings = Object.assign(
-  { sound: true, coords: true, theme: 'wood', depth: 12 },
+  { sound: true, coords: true, theme: 'wood', depth: 12, sessionMode: 'learn' },
   store.get('ot.settings', {})
 );
 let stats = store.get('ot.stats', {});
@@ -119,7 +119,8 @@ const showTab = (name) => document.querySelector(`#tabs .tab[data-tab="${name}"]
 
 const practice = {
   line: null, game: null, ply: 0, phase: 'idle',
-  misses: 0, usedHint: false, usedShow: false, rendered: [], deviation: null
+  misses: 0, usedHint: false, usedShow: false, rendered: [], deviation: null,
+  mode: settings.sessionMode || 'learn'
 };
 
 const boardPr = new Board($('board-practice'), {
@@ -149,6 +150,7 @@ function startLine(line) {
   practice.rendered = [];
   practice.deviation = null;
   practice.recorded = false;
+  practice.mode = settings.sessionMode || 'learn';
   boardPr.stopPulse();
   boardPr.setOrientation(line.side);
   renderPractice();
@@ -190,14 +192,21 @@ function renderPractice() {
     const remaining = line.moves.length - ply;
     $('pr-movecount').textContent = practice.phase === 'done' ? 'Line complete.'
       : practice.phase === 'idle' ? 'Pick a line from the Repertoire tab.'
+      : practice.phase === 'wait' ? 'Explanation above \u2014 press \u25B6 for the reply.'
       : `Move ${Math.min(ply + 1, line.moves.length)} of ${line.moves.length} \u2014 ${practice.phase === 'bot' ? 'opponent thinking\u2026' : 'your move'}.`;
   }
 
   const tipEl = $('pr-tip');
   const lastPly = rendered.length - 1;
-  const tip = lastPly >= 0 && line && line.tips && line.tips[lastPly] && !rendered[lastPly].bad;
+  const showTips = practice.mode !== 'practice';
+  const tip = showTips && lastPly >= 0 && line && line.tips && line.tips[lastPly] && !rendered[lastPly].bad;
   if (tip) { tipEl.textContent = line.tips[lastPly]; tipEl.classList.remove('hidden'); }
   else tipEl.classList.add('hidden');
+  const learnBtn = $('mode-learn'), pracBtn = $('mode-practice');
+  if (learnBtn && pracBtn) {
+    learnBtn.classList.toggle('active', practice.mode === 'learn');
+    pracBtn.classList.toggle('active', practice.mode === 'practice');
+  }
 }
 
 function practiceUserMove(from, to, promo) {
@@ -219,6 +228,13 @@ function practiceUserMove(from, to, promo) {
     practice.ply++;
     renderPractice();
     if (practice.ply >= line.moves.length) return completeLine(false);
+    if (practice.mode === 'learn') {
+      practice.phase = 'wait';
+      renderPractice();
+      coach('Take your time reading \u2014 press \u25B6 for the reply.', 'info');
+      coachActions([]);
+      return;
+    }
     return botMove();
   }
 
@@ -341,7 +357,7 @@ function botMove() {
 
 function playBotMoveNow() {
   const { line, game, ply } = practice;
-  if (!practice.line || practice.game !== game || practice.phase !== 'bot') return;
+  if (!practice.line || practice.game !== game || (practice.phase !== 'bot' && practice.phase !== 'wait')) return;
   const mv = game.move(line.moves[ply]);
   if (!mv) { completeLine(false); return; }
   sfx.engineMove();
@@ -383,7 +399,7 @@ function nextMove() {
   if (!practice.line) return;
   if (practice.phase === 'deviation') { practice.deviation = null; showBookMove(); return; }
   if (practice.phase === 'user') { showBookMove(); return; }
-  if (practice.phase === 'bot') { practice.phase = 'bot'; playBotMoveNow(); return; }
+  if (practice.phase === 'bot' || practice.phase === 'wait') { practice.phase = 'bot'; playBotMoveNow(); return; }
 }
 
 function completeLine(variant) {
@@ -842,6 +858,18 @@ document.addEventListener('keydown', (e) => {
   if (k === 'arrowright') nextMove();
   if (k === 'f') { boardPr.flip(); boardFp.flip(); }
 });
+
+/* ---------------- session mode toggle ---------------- */
+
+function setSessionMode(mode) {
+  practice.mode = mode;
+  settings.sessionMode = mode;
+  persist();
+  renderPractice();
+  if (mode === 'practice' && practice.phase === 'wait') botMove();
+}
+$('mode-learn').onclick = () => setSessionMode('learn');
+$('mode-practice').onclick = () => setSessionMode('practice');
 
 /* ---------------- boot ---------------- */
 
