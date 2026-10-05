@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=15';
-import { BUILTIN_LINES } from './lines.js?v=15';
-import { Board } from './board.js?v=15';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=15';
-import { sfx, setSound } from './sound.js?v=15';
-import { classify } from './openings.js?v=15';
+import { Chess } from '../vendor/chess.esm.js?v=16';
+import { BUILTIN_LINES } from './lines.js?v=16';
+import { Board } from './board.js?v=16';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=16';
+import { sfx, setSound } from './sound.js?v=16';
+import { classify } from './openings.js?v=16';
 
 /* ---------------- storage ---------------- */
 
@@ -18,7 +18,7 @@ const store = {
 };
 
 let settings = Object.assign(
-  { sound: true, coords: true, theme: 'wood', depth: 12, sessionMode: 'learn' },
+  { sound: true, coords: true, theme: 'wood', depth: 12 },
   store.get('ot.settings', {})
 );
 let stats = store.get('ot.stats', {});
@@ -150,7 +150,7 @@ function startLine(line) {
   practice.rendered = [];
   practice.deviation = null;
   practice.recorded = false;
-  practice.mode = settings.sessionMode || 'learn';
+  practice.mode = 'learn';
   boardPr.stopPulse();
   boardPr.setOrientation(line.side);
   renderPractice();
@@ -284,8 +284,14 @@ function showBookMove() {
   renderPractice();
   coach(`The book move (${played}) played for you. Watch how the pieces cooperate.`, 'info');
   coachActions([]);
-  if (practice.ply >= line.moves.length) completeLine(false);
-  else botMove();
+  if (practice.ply >= line.moves.length) { completeLine(false); return; }
+  if (practice.mode === 'learn') {
+    practice.phase = 'wait';
+    renderPractice();
+    coach('Take your time reading \u2014 press \u25B6 for the reply.', 'info');
+    return;
+  }
+  botMove();
 }
 
 async function checkDeviation() {
@@ -870,6 +876,23 @@ function setSessionMode(mode) {
 }
 $('mode-learn').onclick = () => setSessionMode('learn');
 $('mode-practice').onclick = () => setSessionMode('practice');
+
+/* ---------------- version self-update ---------------- */
+
+const APP_BUILD = 16;
+async function checkForUpdate() {
+  try {
+    const r = await fetch('version.json?cb=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j.v && j.v !== APP_BUILD) {
+      if (practice.phase === 'idle' || practice.phase === 'done') { location.reload(); return; }
+      toast('A new version is available \u2014 reload the page when ready.');
+    }
+  } catch { /* offline or transient */ }
+}
+setTimeout(checkForUpdate, 4000);
+setInterval(checkForUpdate, 120000);
 
 /* ---------------- boot ---------------- */
 
