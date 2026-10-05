@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=12';
-import { BUILTIN_LINES } from './lines.js?v=12';
-import { Board } from './board.js?v=12';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=12';
-import { sfx, setSound } from './sound.js?v=12';
-import { classify } from './openings.js?v=12';
+import { Chess } from '../vendor/chess.esm.js?v=13';
+import { BUILTIN_LINES } from './lines.js?v=13';
+import { Board } from './board.js?v=13';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=13';
+import { sfx, setSound } from './sound.js?v=13';
+import { classify } from './openings.js?v=13';
 
 /* ---------------- storage ---------------- */
 
@@ -148,6 +148,7 @@ function startLine(line) {
   practice.usedShow = false;
   practice.rendered = [];
   practice.deviation = null;
+  practice.recorded = false;
   boardPr.stopPulse();
   boardPr.setOrientation(line.side);
   renderPractice();
@@ -334,28 +335,61 @@ function acceptAlternative(deviation, msg) {
 }
 
 function botMove() {
-  const { line, game, ply } = practice;
   practice.phase = 'bot';
   renderPractice();
-  setTimeout(() => {
-    if (!practice.line || practice.game !== game) return;
-    const mv = game.move(line.moves[ply]);
-    if (!mv) { completeLine(false); return; }
-    sfx.engineMove();
-    practice.rendered.push({ san: mv.san, byUser: false, mv });
-    practice.ply++;
-    if (practice.ply >= line.moves.length) {
-      renderPractice();
-      completeLine(false);
-    } else {
-      practice.phase = 'user';
-      renderPractice();
-    }
-  }, 380 + Math.random() * 320);
+  setTimeout(() => playBotMoveNow(), 380 + Math.random() * 320);
+}
+
+function playBotMoveNow() {
+  const { line, game, ply } = practice;
+  if (!practice.line || practice.game !== game || practice.phase !== 'bot') return;
+  const mv = game.move(line.moves[ply]);
+  if (!mv) { completeLine(false); return; }
+  sfx.engineMove();
+  practice.rendered.push({ san: mv.san, byUser: false, mv });
+  practice.ply++;
+  if (practice.ply >= line.moves.length) {
+    renderPractice();
+    completeLine(false);
+  } else {
+    practice.phase = 'user';
+    renderPractice();
+  }
+}
+
+// "<" — rewind to the user's previous decision point
+function prevMove() {
+  if (!practice.line || practice.phase === 'deviation' || !practice.rendered.length) return;
+  boardPr.stopPulse();
+  const undoOnce = () => {
+    practice.game.undo();
+    practice.rendered.pop();
+    practice.ply--;
+  };
+  undoOnce();
+  while (practice.ply > 0 && isBotPly(practice.line, practice.ply)) undoOnce();
+  practice.deviation = null;
+  if (isBotPly(practice.line, practice.ply)) {
+    botMove(); // rewound to the very start of a Black line
+  } else {
+    practice.phase = 'user';
+    renderPractice();
+    coach('Stepped back \u2014 your move again.', 'info');
+    coachActions([]);
+  }
+}
+
+// ">" \u2014 play the next book move (for whoever is to move)
+function nextMove() {
+  if (!practice.line) return;
+  if (practice.phase === 'deviation') { practice.deviation = null; showBookMove(); return; }
+  if (practice.phase === 'user') { showBookMove(); return; }
+  if (practice.phase === 'bot') { practice.phase = 'bot'; playBotMoveNow(); return; }
 }
 
 function completeLine(variant) {
   practice.phase = 'done';
+  if (!practice.recorded) {
   const entry = getStats(practice.line.id);
   entry.runs++;
   entry.last = Date.now();
@@ -378,6 +412,8 @@ function completeLine(variant) {
       : `Line complete, with ${assists} assist${assists === 1 ? '' : 's'}. The shaky spots come back tomorrow.`,
     isClean || variant ? 'good' : 'info'
   );
+  practice.recorded = true;
+  }
   coachActions([
     { label: 'Practice again', primary: true, onClick: () => startLine(practice.line) }
   ]);
@@ -395,10 +431,8 @@ $('btn-hint').onclick = () => {
     sfx.select();
   }
 };
-$('btn-show').onclick = () => {
-  if (practice.phase === 'deviation') { practice.deviation = null; showBookMove(); }
-  else if (practice.phase === 'user') showBookMove();
-};
+$('btn-prev').onclick = prevMove;
+$('btn-next').onclick = nextMove;
 $('btn-retry').onclick = () => practice.line && startLine(practice.line);
 
 /* ---------------- repertoire ---------------- */
@@ -804,8 +838,9 @@ document.addEventListener('keydown', (e) => {
   if (k === 'escape') { $('modal-settings').classList.add('hidden'); return; }
   if (!$('modal-settings').classList.contains('hidden')) return; // modal open: no game shortcuts
   if (k === 'h') $('btn-hint').click();
-  if (k === 's') $('btn-show').click();
   if (k === 'r') $('btn-retry').click();
+  if (k === 'arrowleft') prevMove();
+  if (k === 'arrowright') nextMove();
   if (k === 'f') { boardPr.flip(); boardFp.flip(); }
 });
 

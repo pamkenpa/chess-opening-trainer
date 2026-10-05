@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Opening Trainer</title>
-<link rel="stylesheet" href="css/style.css?v=12">
+<link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body data-theme="wood">
 
@@ -52,14 +52,15 @@
       </div>
 
       <div class="card">
-        <div class="moves-head">Moves</div>
+        <div class="moves-head">Moves &amp; explanations</div>
         <ol id="pr-moves" class="moves"></ol>
         <div id="pr-tip" class="tip hidden"></div>
       </div>
 
       <div class="btn-row">
+        <button id="btn-prev" class="btn" title="Step back one move (Left arrow)">&#10094;</button>
+        <button id="btn-next" class="btn" title="Play the next book move (Right arrow)">&#10095;</button>
         <button id="btn-hint" class="btn" title="Show the square the piece starts on (H)">Hint</button>
-        <button id="btn-show" class="btn" title="Play the book move for me (S)">Show move</button>
         <button id="btn-retry" class="btn" title="Restart this line (R)">Retry</button>
       </div>
     </div>
@@ -185,6 +186,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script type="module" src="js/app.js?v=12"></script>
+<script type="module" src="js/app.js?v=13"></script>
 </body>
 </html>

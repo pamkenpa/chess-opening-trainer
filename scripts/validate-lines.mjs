@@ -5,13 +5,18 @@ import { BUILTIN_LINES } from '../public/js/lines.js';
 
 let bad = 0;
 for (const line of BUILTIN_LINES) {
+  if (!Array.isArray(line.tips) || line.tips.length !== line.moves.length) {
+    bad++;
+    console.log(`BAD ${line.id}: tips length ${line.tips ? line.tips.length : 'none'} != moves length ${line.moves.length}`);
+    continue;
+  }
+  const empty = line.tips.filter(t => !t || !t.trim()).length;
+  if (empty) { bad++; console.log(`BAD ${line.id}: ${empty} empty tips`); continue; }
   const game = new Chess();
   try {
     for (let i = 0; i < line.moves.length; i++) game.move(line.moves[i]);
     const canon = game.history();
-    const mismatch = canon.filter((m, i) => m !== line.moves[i]);
-    const endsOn = line.moves.length % 2 === 1 ? 'white' : 'black';
-    console.log(`OK  ${line.id.padEnd(20)} ${canon.length} plies, ends on ${endsOn}${mismatch.length ? '  CANON:' + mismatch.join(',') : ''}`);
+    console.log(`OK  ${line.id.padEnd(20)} ${canon.length} plies, ${line.tips.length} explanations`);
   } catch (e) {
     bad++;
     console.log(`BAD ${line.id}: ${e.message}`);
