@@ -172,7 +172,7 @@ export const BUILTIN_LINES = [
   },
   {
     id: 'b-najdorf',
-    family: 'najdorf',
+    family: 'sicilian',
     name: 'Sicilian Najdorf — English Attack',
     side: 'black',
     eco: 'B90',

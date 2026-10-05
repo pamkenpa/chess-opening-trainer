@@ -1,8 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=7';
-import { BUILTIN_LINES } from './lines.js?v=7';
-import { Board } from './board.js?v=7';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=7';
-import { sfx, setSound } from './sound.js?v=7';
+import { Chess } from '../vendor/chess.esm.js?v=8';
+import { BUILTIN_LINES } from './lines.js?v=8';
+import { Board } from './board.js?v=8';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=8';
+import { sfx, setSound } from './sound.js?v=8';
+import { classify } from './openings.js?v=8';
 
 /* ---------------- storage ---------------- */
 
@@ -411,11 +412,17 @@ const FAMILIES = [
   { id: 'qgd', name: 'Queen\u2019s Gambit Declined' },
   { id: 'london', name: 'London System' },
   { id: 'caro', name: 'Caro-Kann Defence' },
-  { id: 'najdorf', name: 'Sicilian Najdorf' },
+  { id: 'sicilian', name: 'Sicilian Defence' },
   { id: 'slav', name: 'Slav Defence' },
   { id: 'imported', name: 'Imported & Custom' }
 ];
 let openFamilies = new Set(store.get('ot.openFamilies', []));
+const BUILTIN_FAMILY_IDS = new Set(FAMILIES.map(f => f.id));
+let customFamilies = store.get('ot.customFamilies', {});
+function familyName(fid) {
+  const f = FAMILIES.find(x => x.id === fid);
+  return f ? f.name : (customFamilies[fid] || fid);
+}
 
 function renderRepertoire() {
   const now = Date.now();
@@ -442,7 +449,7 @@ function renderRepertoire() {
     box.appendChild(familyBlock(fam, famLines, now));
   }
   for (const [fid, famLines] of groups) {
-    const fam = FAMILIES.find(f => f.id === fid) || { id: fid, name: fid };
+    const fam = FAMILIES.find(f => f.id === fid) || { id: fid, name: familyName(fid) };
     box.appendChild(familyBlock(fam, famLines, now));
   }
 }
@@ -522,9 +529,10 @@ function splitGames(pgn) {
 $('btn-import').onclick = () => {
   const text = $('pgn-input').value.trim();
   const msg = $('import-msg');
-  if (!text) { msg.textContent = 'Paste a PGN first.'; msg.className = 'small err'; return; }
+  if (!text) { msg.textContent = 'Paste an opening first (PGN or plain moves).'; msg.className = 'small err'; return; }
   const sideChoice = $('pgn-side').value;
-  let imported = 0, skipped = 0;
+  let made = 0, skipped = 0;
+  const results = [];
   for (const chunk of splitGames(text).slice(0, 60)) {
     try {
       const g = new Chess();
@@ -532,28 +540,41 @@ $('btn-import').onclick = () => {
       const hist = g.history();
       if (hist.length < 4) { skipped++; continue; }
       const moves = hist.slice(0, 60);
+      const key = moves.join(' ');
+      if (allLines().some(l => l.moves.join(' ') === key)) { skipped++; results.push('\u26A0 already in your repertoire: ' + key.split(' ').slice(0, 6).join(' ') + '\u2026'); continue; }
       const tag = (name) => (chunk.match(new RegExp('\\[' + name + '\\s+"([^"]*)"')) || [])[1] || '';
-      const eco = tag('ECO');
-      let name = tag('Opening') || tag('Event') || '';
-      if (!name && (tag('White') || tag('Black'))) name = `${tag('White') || '?'} \u2013 ${tag('Black') || '?'}`;
-      if (!name) name = 'Imported ' + moves.slice(0, 6).join(' ');
-      const side = sideChoice === 'auto' ? 'white' : sideChoice;
+      const id = classify(moves);
+      const name = tag('Opening') || (id ? id.name : '') || tag('Event') || 'Generated ' + moves.slice(0, 6).join(' ');
+      const eco = tag('ECO') || (id ? id.eco : '');
+      let family = id ? id.family : 'imported';
+      if (id && !BUILTIN_FAMILY_IDS.has(family)) {
+        customFamilies[family] = id.familyName || familyName(family);
+      }
+      const familyLabel = familyName(family);
+      const side = sideChoice === 'auto' ? (/Defen/i.test(name) ? 'black' : 'white') : sideChoice;
       customLines.push({
-        id: 'c' + Date.now().toString(36) + imported,
+        id: 'g' + Date.now().toString(36) + made,
         name: name.slice(0, 80),
         side, eco, moves,
         tips: {},
-        family: 'imported',
+        family,
         custom: true
       });
-      imported++;
+      made++;
+      results.push('\u2713 ' + name.slice(0, 60) + (eco ? ' (' + eco + ')' : '') + ' \u2192 ' + familyLabel);
     } catch { skipped++; }
   }
   persist();
+  store.set('ot.customFamilies', customFamilies);
   renderRepertoire();
-  msg.textContent = imported ? `Imported ${imported} line${imported === 1 ? '' : 's'}${skipped ? `, skipped ${skipped}` : ''}.` : 'No valid games found (4+ moves each).';
-  msg.className = 'small ' + (imported ? 'ok' : 'err');
-  if (imported) $('pgn-input').value = '';
+  if (made) {
+    msg.innerHTML = results.map(r => r).join('<br>') + (skipped ? '<br>' + skipped + ' skipped.' : '');
+    msg.className = 'small ok';
+    $('pgn-input').value = '';
+  } else {
+    msg.textContent = 'No valid openings found (4+ legal moves each).';
+    msg.className = 'small err';
+  }
 };
 
 $('btn-export').onclick = () => {

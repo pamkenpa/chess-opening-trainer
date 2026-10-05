@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Opening Trainer</title>
-<link rel="stylesheet" href="css/style.css?v=7">
+<link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body data-theme="wood">
 
@@ -80,16 +80,16 @@
         <div id="rep-table"></div>
       </div>
       <div class="card rep-import">
-        <h2>Import lines (PGN)</h2>
-        <p class="muted small">Paste one or more PGN games. Main line only; choose which colour you want to train. The opening name comes from the PGN tags when present.</p>
-        <textarea id="pgn-input" rows="10" placeholder="[Event ...]&#10;1. e4 e5 2. Nf3 Nc6 ..."></textarea>
+        <h2>Generate lines</h2>
+        <p class="muted small">Paste an opening as PGN or plain moves (e.g. <i>1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6</i>). The trainer identifies the opening, names it, and files it under its family.</p>
+        <textarea id="pgn-input" rows="10" placeholder="[Event ...]&#10;1. e4 e5 2. Nf3 Nc6 ...  &#10;&#10;or just:  1. e4 c5 2. Nf3 d6"></textarea>
         <div class="btn-row">
           <select id="pgn-side">
-            <option value="auto">Auto (train as White)</option>
+            <option value="auto">Auto (by opening name)</option>
             <option value="white">Train as White</option>
             <option value="black">Train as Black</option>
           </select>
-          <button id="btn-import" class="btn primary">Import</button>
+          <button id="btn-import" class="btn primary">Generate</button>
         </div>
         <div id="import-msg" class="small"></div>
         <hr>
@@ -185,6 +185,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script type="module" src="js/app.js?v=7"></script>
+<script type="module" src="js/app.js?v=8"></script>
 </body>
 </html>
