@@ -1,9 +1,9 @@
-import { Chess } from '../vendor/chess.esm.js?v=11';
-import { BUILTIN_LINES } from './lines.js?v=11';
-import { Board } from './board.js?v=11';
-import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=11';
-import { sfx, setSound } from './sound.js?v=11';
-import { classify } from './openings.js?v=11';
+import { Chess } from '../vendor/chess.esm.js?v=12';
+import { BUILTIN_LINES } from './lines.js?v=12';
+import { Board } from './board.js?v=12';
+import { Engine, scoreToWhiteCp, formatScore } from './engine.js?v=12';
+import { sfx, setSound } from './sound.js?v=12';
+import { classify } from './openings.js?v=12';
 
 /* ---------------- storage ---------------- */
 
@@ -542,6 +542,9 @@ $('btn-import').onclick = () => {
       const moves = hist.slice(0, 60);
       const tag = (name) => (chunk.match(new RegExp('\\[' + name + '\\s+"([^"]*)"')) || [])[1] || '';
       const id = classify(moves);
+      if (id && !BUILTIN_FAMILY_IDS.has(id.family)) {
+        customFamilies[id.family] = id.familyName || familyName(id.family);
+      }
       const key = moves.join(' ');
       if (allLines().some(l => l.moves.join(' ') === key)) { skipped++; results.push('\u26A0 already in your repertoire: ' + key.split(' ').slice(0, 6).join(' ') + '\u2026'); continue; }
       const name = tag('Opening') || (id ? id.name : '') || tag('Event') || 'Generated ' + moves.slice(0, 6).join(' ');
